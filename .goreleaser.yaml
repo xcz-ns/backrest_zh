@@ -73,8 +73,8 @@ archives:
 
 dockers:
   - image_templates:
-      - garethgeorge/backrest:latest
-      - garethgeorge/backrest:{{ .Tag }}
+      - dr.xczns.top:58808/backrest:latest
+      - dr.xczns.top:58808/backrest:{{ .Tag }}
     dockerfile: Dockerfile.alpine
     use: buildx
     build_flag_templates:
@@ -82,8 +82,8 @@ dockers:
       - "--platform=linux/amd64,linux/arm64"
 
   - image_templates:
-      - garethgeorge/backrest:scratch-latest
-      - garethgeorge/backrest:scratch-{{ .Tag }}
+      - dr.xczns.top:58808/backrest:scratch-latest
+      - dr.xczns.top:58808/backrest:scratch-{{ .Tag }}
     dockerfile: Dockerfile.scratch
     use: buildx
     build_flag_templates:
@@ -91,15 +91,15 @@ dockers:
       - "--platform=linux/amd64,linux/arm64,linux/arm/v6"
 
 docker_manifests:
-  - name_template: "garethgeorge/backrest:latest"
+  - name_template: "dr.xczns.top:58808/backrest:latest"
     image_templates:
-      - "garethgeorge/backrest:latest"
-      - "garethgeorge/backrest:scratch-latest"
+      - "dr.xczns.top:58808/backrest:latest"
+      - "dr.xczns.top:58808/backrest:scratch-latest"
 
-  - name_template: "garethgeorge/backrest:{{ .Tag }}"
+  - name_template: "dr.xczns.top:58808/backrest:{{ .Tag }}"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}"
-      - "garethgeorge/backrest:scratch-{{ .Tag }}"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}"
+      - "dr.xczns.top:58808/backrest:scratch-{{ .Tag }}"
 
 brews:
   - name: backrest
