@@ -46,13 +46,11 @@ export const SummaryDashboard = () => {
   const alertApi = useAlertApi()!;
   const navigate = useNavigate();
 
-  const [summaryData, setSummaryData] =
-    useState<SummaryDashboardResponse | null>();
+  const [summaryData, setSummaryData] = useState<SummaryDashboardResponse | null>();
 
   useEffect(() => {
-    // Fetch summary data
+    // 获取摘要数据
     const fetchData = async () => {
-      // check if the tab is in the foreground
       if (document.hidden) {
         return;
       }
@@ -61,7 +59,7 @@ export const SummaryDashboard = () => {
         const data = await backrestService.getSummaryDashboard({});
         setSummaryData(data);
       } catch (e) {
-        alertApi.error("Failed to fetch summary data: " + e);
+        alertApi.error("获取摘要数据失败: " + e);
       }
     };
 
@@ -88,45 +86,48 @@ export const SummaryDashboard = () => {
   return (
     <>
       <Flex gap={16} vertical>
-        <Typography.Title level={3}>Repos</Typography.Title>
-        {summaryData && summaryData.repoSummaries.length > 0 ? (
+        <Typography.Title level={3}>存储库</Typography.Title>
+        {summaryData.repoSummaries.length > 0 ? (
           summaryData.repoSummaries.map((summary) => (
             <SummaryPanel summary={summary} key={summary.id} />
           ))
         ) : (
-          <Empty description="No repos found" />
+          <Empty description="未找到存储库" />
         )}
-        <Typography.Title level={3}>Plans</Typography.Title>
-        {summaryData && summaryData.planSummaries.length > 0 ? (
+
+        <Typography.Title level={3}>计划</Typography.Title>
+        {summaryData.planSummaries.length > 0 ? (
           summaryData.planSummaries.map((summary) => (
             <SummaryPanel summary={summary} key={summary.id} />
           ))
         ) : (
-          <Empty description="No plans found" />
+          <Empty description="未找到计划" />
         )}
+
         <Divider />
-        <Typography.Title level={3}>System Info</Typography.Title>
+        <Typography.Title level={3}>系统信息</Typography.Title>
         <Descriptions
           layout="vertical"
           column={2}
           items={[
             {
               key: 1,
-              label: "Config Path",
+              label: "配置文件路径",
               children: summaryData.configPath,
             },
             {
               key: 2,
-              label: "Data Directory",
+              label: "数据目录",
               children: summaryData.dataPath,
             },
           ]}
         />
+
         <Collapse
           size="small"
           items={[
             {
-              label: "Config as JSON",
+              label: "配置 JSON 格式",
               children: (
                 <pre>
                   {config &&
@@ -187,15 +188,15 @@ const SummaryPanel = ({
 
     return (
       <Card style={{ opacity: 0.9 }} size="small" key={label}>
-        <Typography.Text>Backup at {formatTime(entry.time)}</Typography.Text>{" "}
+        <Typography.Text>备份时间：{formatTime(entry.time)}</Typography.Text>{" "}
         <br />
         {isPending ? (
           <Typography.Text type="secondary">
-            Scheduled, waiting.
+            已安排，等待执行。
           </Typography.Text>
         ) : (
           <Typography.Text type="secondary">
-            Took {formatDuration(entry.durationMs)}, added{" "}
+            耗时 {formatDuration(entry.durationMs)}，新增数据量{" "}
             {formatBytes(entry.bytesAdded)}
           </Typography.Text>
         )}
@@ -203,28 +204,27 @@ const SummaryPanel = ({
     );
   };
 
-  const cardInfo: { key: number; label: string; children: React.ReactNode }[] =
-    [];
+  const cardInfo: { key: number; label: string; children: React.ReactNode }[] = [];
 
   cardInfo.push(
     {
       key: 1,
-      label: "Backups (30d)",
+      label: "最近 30 天备份次数",
       children: (
         <>
           {summary.backupsSuccessLast30days ? (
             <Typography.Text type="success" style={{ marginRight: "5px" }}>
-              {summary.backupsSuccessLast30days + ""} ok
+              {summary.backupsSuccessLast30days} 次成功
             </Typography.Text>
           ) : undefined}
           {summary.backupsFailed30days ? (
             <Typography.Text type="danger" style={{ marginRight: "5px" }}>
-              {summary.backupsFailed30days + ""} failed
+              {summary.backupsFailed30days} 次失败
             </Typography.Text>
           ) : undefined}
           {summary.backupsWarningLast30days ? (
             <Typography.Text type="warning" style={{ marginRight: "5px" }}>
-              {summary.backupsWarningLast30days + ""} warning
+              {summary.backupsWarningLast30days} 次警告
             </Typography.Text>
           ) : undefined}
         </>
@@ -232,34 +232,34 @@ const SummaryPanel = ({
     },
     {
       key: 2,
-      label: "Bytes Scanned (30d)",
+      label: "扫描字节数（30天）",
       children: formatBytes(Number(summary.bytesScannedLast30days)),
     },
     {
       key: 3,
-      label: "Bytes Added (30d)",
+      label: "新增字节数（30天）",
       children: formatBytes(Number(summary.bytesAddedLast30days)),
     }
   );
 
-  // check if mobile layout
+  // 判断是否是移动端布局
   if (!isMobile()) {
     cardInfo.push(
       {
         key: 4,
-        label: "Next Scheduled Backup",
+        label: "下次计划备份时间",
         children: summary.nextBackupTimeMs
           ? formatTime(Number(summary.nextBackupTimeMs))
-          : "None Scheduled",
+          : "无计划",
       },
       {
         key: 5,
-        label: "Bytes Scanned Avg",
+        label: "平均扫描字节数",
         children: formatBytes(Number(summary.bytesScannedAvg)),
       },
       {
         key: 6,
-        label: "Bytes Added Avg",
+        label: "平均新增字节数",
         children: formatBytes(Number(summary.bytesAddedAvg)),
       }
     );
@@ -267,13 +267,9 @@ const SummaryPanel = ({
 
   return (
     <Card title={summary.id} style={{ width: "100%" }}>
-      <Row gutter={16} key={1}>
+      <Row gutter={16}>
         <Col span={10}>
-          <Descriptions
-            layout="vertical"
-            column={3}
-            items={cardInfo}
-          ></Descriptions>
+          <Descriptions layout="vertical" column={3} items={cardInfo} />
         </Col>
         <Col span={14}>
           <ResponsiveContainer width="100%" height={140}>

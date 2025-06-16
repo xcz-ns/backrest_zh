@@ -51,7 +51,7 @@ export const SettingsModal = () => {
 
   const handleOk = async () => {
     try {
-      // Validate form
+      // 验证表单
       let formData = await validateForm(form);
 
       if (formData.auth?.users) {
@@ -66,7 +66,7 @@ export const SettingsModal = () => {
         }
       }
 
-      // Update configuration
+      // 更新配置
       let newConfig = clone(ConfigSchema, config);
       newConfig.auth = fromJson(AuthSchema, formData.auth, {
         ignoreUnknownFields: false,
@@ -74,18 +74,16 @@ export const SettingsModal = () => {
       newConfig.instance = formData.instance;
 
       if (!newConfig.auth?.users && !newConfig.auth?.disabled) {
-        throw new Error(
-          "At least one user must be configured or authentication must be disabled"
-        );
+        throw new Error("必须至少配置一个用户，或禁用身份验证");
       }
 
       setConfig(await backrestService.setConfig(newConfig));
-      alertsApi.success("Settings updated", 5);
+      alertsApi.success("设置已更新", 5);
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (e: any) {
-      alertsApi.error(formatErrorAlert(e, "Operation error: "), 15);
+      alertsApi.error(formatErrorAlert(e, "操作错误："), 15);
       console.error(e);
     }
   };
@@ -101,14 +99,14 @@ export const SettingsModal = () => {
       <Modal
         open={true}
         onCancel={handleCancel}
-        title={"Settings"}
+        title={"设置"}
         width="40vw"
         footer={[
           <Button key="back" onClick={handleCancel}>
-            Cancel
+            取消
           </Button>,
           <Button key="submit" type="primary" onClick={handleOk}>
-            Submit
+            提交
           </Button>,
         ]}
       >
@@ -120,51 +118,46 @@ export const SettingsModal = () => {
         >
           {users.length > 0 || config.auth?.disabled ? null : (
             <>
-              <strong>Initial backrest setup! </strong>
+              <strong>Backrest 初始设置！</strong>
               <p>
-                Backrest has detected that you do not have any users configured,
-                please add at least one user to secure the web interface.
+                Backrest 检测到您尚未配置任何用户，请至少添加一个用户以保护 Web 界面。
               </p>
               <p>
-                You can add more users later or, if you forget your password,
-                reset users by editing the configuration file (typically in
-                $HOME/.backrest/config.json)
+                后续您可以随时添加更多用户。如果忘记密码，可通过编辑配置文件重置用户（通常位于 $HOME/.backrest/config.json）。
               </p>
             </>
           )}
-          <Tooltip title="The instance name will be used to identify this backrest install. Pick a value carefully as it cannot be changed later.">
+          <Tooltip title="实例名称将用于标识这个 Backrest 安装。请谨慎选择，因为该值一旦设定无法更改。">
             <Form.Item
               hasFeedback
               name="instance"
-              label="Instance ID"
+              label="实例 ID"
               required
               initialValue={config.instance || ""}
               rules={[
-                { required: true, message: "Instance ID is required" },
+                { required: true, message: "实例 ID 是必填项" },
                 {
                   pattern: namePattern,
                   message:
-                    "Instance ID must be alphanumeric with '_-.' allowed as separators",
+                    "实例 ID 必须为字母数字组合，允许使用 '_-.' 作为分隔符",
                 },
               ]}
             >
               <Input
-                placeholder={
-                  "Unique instance ID for this instance (e.g. my-backrest-server)"
-                }
+                placeholder="此实例的唯一 ID（例如 my-backrest-server）"
                 disabled={!!config.instance}
               />
             </Form.Item>
           </Tooltip>
           <Form.Item
-            label="Disable Authentication"
+            label="禁用身份验证"
             name={["auth", "disabled"]}
             valuePropName="checked"
             initialValue={config.auth?.disabled || false}
           >
             <Checkbox />
           </Form.Item>
-          <Form.Item label="Users" required={true}>
+          <Form.Item label="用户" required={true}>
             <Form.List
               name={["auth", "users"]}
               initialValue={
@@ -182,15 +175,15 @@ export const SettingsModal = () => {
                           <Form.Item
                             name={[field.name, "name"]}
                             rules={[
-                              { required: true, message: "Name is required" },
+                              { required: true, message: "用户名是必填项" },
                               {
                                 pattern: namePattern,
                                 message:
-                                  "Name must be alphanumeric with dashes or underscores as separators",
+                                  "用户名必须为字母数字组合，允许使用横线或下划线作为分隔符",
                               },
                             ]}
                           >
-                            <Input placeholder="Username" />
+                            <Input placeholder="用户名" />
                           </Form.Item>
                         </Col>
                         <Col span={11}>
@@ -199,12 +192,12 @@ export const SettingsModal = () => {
                             rules={[
                               {
                                 required: true,
-                                message: "Password is required",
+                                message: "密码是必填项",
                               },
                             ]}
                           >
                             <Input.Password
-                              placeholder="Password"
+                              placeholder="密码"
                               onFocus={() => {
                                 form.setFieldValue(
                                   ["auth", "users", index, "needsBcrypt"],
@@ -236,7 +229,7 @@ export const SettingsModal = () => {
                       }}
                       block
                     >
-                      <PlusOutlined /> Add user
+                      <PlusOutlined /> 添加用户
                     </Button>
                   </Form.Item>
                 </>
@@ -244,14 +237,14 @@ export const SettingsModal = () => {
             </Form.List>
           </Form.Item>
 
-          <Form.Item shouldUpdate label="Preview">
+          <Form.Item shouldUpdate label="预览">
             {() => (
               <Collapse
                 size="small"
                 items={[
                   {
                     key: "1",
-                    label: "Config as JSON",
+                    label: "配置 JSON 格式",
                     children: (
                       <Typography>
                         <pre>

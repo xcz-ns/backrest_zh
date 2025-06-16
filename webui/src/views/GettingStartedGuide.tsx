@@ -1,5 +1,5 @@
 import { Collapse, Divider, Spin, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { backrestService } from "../api";
 import { useConfig } from "../components/ConfigProvider";
 import { Config, ConfigSchema } from "../../gen/ts/v1/config_pb";
@@ -12,68 +12,67 @@ export const GettingStartedGuide = () => {
   return (
     <>
       <Typography.Text>
-        <h1>Getting Started</h1>
-        {/* open link in new tab */}
+        <h1>入门指南</h1>
+        {/* 在新标签页中打开链接 */}
         <p>
-          <a href="https://github.com/garethgeorge/backrest" target="_blank">
-            Check for new Backrest releases on GitHub
+          <a href="https://github.com/garethgeorge/backrest"  target="_blank" rel="noopener noreferrer">
+            在 GitHub 上查看 Backrest 的最新版本
           </a>
         </p>
-        <Divider orientation="left">Overview</Divider>
+        <Divider orientation="left">概述</Divider>
         <ul>
           <li>
-            Repos map directly to restic repositories, start by configuring your
-            backup locations.
+            存储库（Repo）直接对应 restic 的存储库，请先配置你的备份位置。
           </li>
           <li>
-            Plans are where you configure directories to backup, and backup
-            scheduling. Multiple plans can backup to a single restic repository.
+            计划（Plan）是你配置需要备份的目录和备份调度的地方。多个计划可以备份到同一个 restic 存储库。
           </li>
           <li>
-            See{" "}
+            查看{" "}
             <a
-              href="https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html"
+              href="https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html" 
               target="_blank"
+              rel="noopener noreferrer"
             >
-              the restic docs on preparing a new repository
+              restic 官方文档关于准备新仓库的内容
             </a>{" "}
-            for details about available repository types and how they can be
-            configured.
+            了解支持的仓库类型以及如何进行配置。
           </li>
           <li>
-            See{" "}
-            <a href="https://garethgeorge.github.io/backrest" target="_blank">
-              the Backrest wiki
+            查看{" "}
+            <a
+              href="https://garethgeorge.github.io/backrest" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Backrest Wiki
             </a>{" "}
-            for instructions on how to configure Backrest.
+            获取配置 Backrest 的详细说明。
           </li>
         </ul>
-        <Divider orientation="left">Tips</Divider>
+
+        <Divider orientation="left">使用建议</Divider>
         <ul>
           <li>
-            Backup your Backrest configuration: your Backrest config holds all
-            of your repos, plans, and the passwords to decrypt them. When you
-            have Backrest configured to your liking make sure to store a copy of
-            your config (or minimally a copy of your passwords) in a safe
-            location e.g. a secure note in your password manager.
+            备份你的 Backrest 配置：Backrest 的配置文件包含你所有的仓库、计划以及解密它们所需的密码。
+            当你完成 Backrest 的配置后，请务必保存一份配置的副本（或至少保存密码）在安全的位置，
+            例如密码管理器中的安全笔记。
           </li>
           <li>
-            Configure hooks: Backrest can deliver notifications about backup
-            events. It's strongly recommended that you configure an on error
-            hook that will notify you in the event that backups start failing
-            (e.g. an issue with storage or network connectivity). Hooks can be
-            configured either at the plan or repo level.
+            配置钩子（Hook）：Backrest 可以在备份事件发生时发送通知。强烈建议你配置一个“出错时”通知钩子，
+            以便在备份失败时（如存储或网络连接问题）能及时收到通知。钩子可以在计划或仓库级别进行配置。
           </li>
         </ul>
+
         {isDevBuild && (
           <>
-            <Divider orientation="left">Config View</Divider>
+            <Divider orientation="left">配置查看</Divider>
             <Collapse
               size="small"
               items={[
                 {
                   key: "1",
-                  label: "Config JSON hidden for security",
+                  label: "出于安全考虑，配置 JSON 被隐藏",
                   children: config ? (
                     <Typography>
                       <pre>

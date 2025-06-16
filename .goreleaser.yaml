@@ -1,11 +1,4 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-
-# The lines below are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/need to use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
-
+# .goreleaser.yml
 version: 1
 
 env:
@@ -30,8 +23,8 @@ builds:
     goarch:
       - amd64
       - arm64
-    ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+
   - id: linux
     main: ./cmd/backrest
     env:
@@ -42,15 +35,15 @@ builds:
       - amd64
       - arm64
       - arm
-    ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+
   - id: backrestmon
     main: ./cmd/backrestmon
     binary: backrest-windows-tray
     env:
       - CGO_ENABLED=1
       - GO111MODULE=on
-    ldflags: -H=windowsgui
+    ldflags: "-H=windowsgui"
     goos:
       - windows
     goarch:
@@ -59,13 +52,7 @@ builds:
 
 archives:
   - format: tar.gz
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    name_template: "{{ .ProjectName }}_{{- title .Os }}_{{- if eq .Arch \"amd64\" }}x86_64{{- else if eq .Arch \"386\" }}i386{{- else }}{{ .Arch }}{{ end }}{{- if .Arm }}v{{ .Arm }}{{ end }}"
     format_overrides:
       - goos: windows
         format: zip
@@ -79,41 +66,47 @@ archives:
 
 dockers:
   - image_templates:
-      - garethgeorge/backrest:{{ .Tag }}-alpine-amd64
+      - dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64
     dockerfile: Dockerfile.alpine
     use: buildx
+    goarch: amd64
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
+    skip_push: false
 
   - image_templates:
-      - garethgeorge/backrest:{{ .Tag }}-alpine-arm64
+      - dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-arm64
     dockerfile: Dockerfile.alpine
-    goarch: arm64
     use: buildx
+    goarch: arm64
     build_flag_templates:
       - "--pull"
       - "--platform=linux/arm64/v8"
+    skip_push: true
 
   - image_templates:
-      - garethgeorge/backrest:{{ .Tag }}-scratch-arm64
-    dockerfile: Dockerfile.scratch
-    goarch: arm64
-    use: buildx
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64/v8"
-
-  - image_templates:
-      - garethgeorge/backrest:{{ .Tag }}-scratch-amd64
+      - dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64
     dockerfile: Dockerfile.scratch
     use: buildx
+    goarch: amd64
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
+    skip_push: false
 
   - image_templates:
-      - garethgeorge/backrest:{{ .Tag }}-scratch-armv6
+      - dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-arm64
+    dockerfile: Dockerfile.scratch
+    use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64/v8"
+    skip_push: true
+
+  - image_templates:
+      - dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-armv6
     dockerfile: Dockerfile.scratch
     use: buildx
     goarch: arm
@@ -121,66 +114,50 @@ dockers:
     build_flag_templates:
       - "--pull"
       - "--platform=linux/arm/v6"
+    skip_push: true
 
 docker_manifests:
-  - name_template: "garethgeorge/backrest:latest"
+  - name_template: "dr.xczns.top:58808/backrest:latest"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-arm64"
-  - name_template: "garethgeorge/backrest:v{{ .Major }}"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-arm64"
-  - name_template: "garethgeorge/backrest:v{{ .Major }}.{{ .Minor }}"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}.{{ .Minor }}"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-arm64"
-  - name_template: "garethgeorge/backrest:{{ .Tag }}"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:{{ .Tag }}"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-arm64"
-  - name_template: "garethgeorge/backrest:latest-alpine"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:latest-alpine"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-alpine-arm64"
-  - name_template: "garethgeorge/backrest:scratch"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:scratch"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-arm64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-armv6"
-  - name_template: "garethgeorge/backrest:v{{ .Major }}-scratch"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}-scratch"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-arm64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-armv6"
-  - name_template: "garethgeorge/backrest:v{{ .Major }}.{{ .Minor }}-scratch"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}.{{ .Minor }}-scratch"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-arm64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-armv6"
-  - name_template: "garethgeorge/backrest:{{ .Tag }}-scratch"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
+  - name_template: "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch"
     image_templates:
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-amd64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-arm64"
-      - "garethgeorge/backrest:{{ .Tag }}-scratch-armv6"
+      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
 
 brews:
   - name: backrest
-    homepage: https://github.com/garethgeorge/backrest
+    homepage: "https://github.com/garethgeorge/backrest" 
     description: "Backrest is a web UI and orchestrator for restic backup."
-
-    url_template: "https://github.com/garethgeorge/backrest/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-
+    url_template: "https://github.com/garethgeorge/backrest/releases/download/{{  .Tag }}/{{ .ArtifactName }}"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
-
     repository:
       owner: garethgeorge
       name: homebrew-backrest-tap
       branch: main
       token: "{{ .Env.HOMEBREW_GITHUB_TOKEN }}"
-
     service: |
       run opt_bin/"backrest"
       error_log_path var/"log/backrest.log"

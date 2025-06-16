@@ -41,19 +41,16 @@ const SummaryDashboard = React.lazy(() =>
     default: m.SummaryDashboard,
   }))
 );
-
 const GettingStartedGuide = React.lazy(() =>
   import("./GettingStartedGuide").then((m) => ({
     default: m.GettingStartedGuide,
   }))
 );
-
 const PlanView = React.lazy(() =>
   import("./PlanView").then((m) => ({
     default: m.PlanView,
   }))
 );
-
 const RepoView = React.lazy(() =>
   import("./RepoView").then((m) => ({
     default: m.RepoView,
@@ -72,13 +69,13 @@ const RepoViewContainer = () => {
 
   return (
     <MainContentAreaTemplate
-      breadcrumbs={[{ title: "Repo" }, { title: repoId! }]}
+      breadcrumbs={[{ title: "存储库" }, { title: repoId! }]}
       key={repoId}
     >
       {repo ? (
         <RepoView repo={repo} />
       ) : (
-        <Empty description={`Repo ${repoId} not found`} />
+        <Empty description={`找不到存储库 ${repoId}`} />
       )}
     </MainContentAreaTemplate>
   );
@@ -93,15 +90,16 @@ const PlanViewContainer = () => {
   }
 
   const plan = config.plans.find((p) => p.id === planId);
+
   return (
     <MainContentAreaTemplate
-      breadcrumbs={[{ title: "Plan" }, { title: planId! }]}
+      breadcrumbs={[{ title: "备份计划" }, { title: planId! }]}
       key={planId}
     >
       {plan ? (
         <PlanView plan={plan} />
       ) : (
-        <Empty description={`Plan ${planId} not found`} />
+        <Empty description={`找不到计划 ${planId}`} />
       )}
     </MainContentAreaTemplate>
   );
@@ -111,9 +109,9 @@ export const App: React.FC = () => {
   const {
     token: { colorBgContainer, colorTextLightSolid },
   } = theme.useToken();
+
   const navigate = useNavigate();
   const [config, setConfig] = useConfig();
-
   const items = getSidenavItems(config);
 
   return (
@@ -144,7 +142,7 @@ export const App: React.FC = () => {
           />
         </a>
         <h1>
-          <a href="https://github.com/garethgeorge/backrest" target="_blank">
+          <a href="https://github.com/garethgeorge/backrest"  target="_blank">
             <small
               style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.6em" }}
             >
@@ -171,7 +169,7 @@ export const App: React.FC = () => {
               window.location.reload();
             }}
           >
-            Logout
+            退出登录
           </Button>
         </h1>
       </Header>
@@ -191,7 +189,7 @@ export const App: React.FC = () => {
               <Route
                 path="/"
                 element={
-                  <MainContentAreaTemplate breadcrumbs={[{ title: "Summary" }]}>
+                  <MainContentAreaTemplate breadcrumbs={[{ title: "概览" }]}>
                     <SummaryDashboard />
                   </MainContentAreaTemplate>
                 }
@@ -200,7 +198,7 @@ export const App: React.FC = () => {
                 path="/getting-started"
                 element={
                   <MainContentAreaTemplate
-                    breadcrumbs={[{ title: "Getting Started" }]}
+                    breadcrumbs={[{ title: "入门指南" }]}
                   >
                     <GettingStartedGuide />
                   </MainContentAreaTemplate>
@@ -212,7 +210,7 @@ export const App: React.FC = () => {
                 path="/*"
                 element={
                   <MainContentAreaTemplate breadcrumbs={[]}>
-                    <Empty description="Page not found" />
+                    <Empty description="页面未找到" />
                   </MainContentAreaTemplate>
                 }
               />
@@ -258,9 +256,8 @@ const AuthenticationBoundary = ({
           alertApi.error(err.message, 0);
           return;
         }
-
         alertApi.error(
-          "Failed to fetch initial config, typically this means the UI could not connect to the backend",
+          "获取配置失败，通常意味着 UI 无法连接到后端服务",
           0
         );
       });
@@ -289,7 +286,7 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
     {
       key: "add-plan",
       icon: <PlusOutlined />,
-      label: "Add Plan",
+      label: "添加计划",
       onClick: async () => {
         const { AddPlanModal } = await import("./AddPlanModal");
         showModal(<AddPlanModal template={null} />);
@@ -301,7 +298,6 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
         planId: plan.id,
         repoGuid: reposById[plan.repo]?.guid,
       });
-
       return {
         key: "p-" + plan.id,
         icon: <IconForResource selector={sel} />,
@@ -336,7 +332,7 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
     {
       key: "add-repo",
       icon: <PlusOutlined />,
-      label: "Add Repo",
+      label: "添加存储库",
       onClick: async () => {
         const { AddRepoModal } = await import("./AddRepoModal");
         showModal(<AddRepoModal template={null} />);
@@ -384,19 +380,19 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
     {
       key: "plans",
       icon: React.createElement(ScheduleOutlined),
-      label: "Plans",
+      label: "备份计划",
       children: plans,
     },
     {
       key: "repos",
       icon: React.createElement(DatabaseOutlined),
-      label: "Repositories",
+      label: "存储库",
       children: repos,
     },
     {
       key: "settings",
       icon: React.createElement(SettingOutlined),
-      label: "Settings",
+      label: "设置",
       onClick: async () => {
         const { SettingsModal } = await import("./SettingsModal");
         showModal(<SettingsModal />);
@@ -411,7 +407,6 @@ const IconForResource = ({ selector }: { selector: OpSelector }) => {
     if (!selector || !selector.instanceId || !selector.repoGuid) {
       return;
     }
-
     const load = async () => {
       setStatus(await getStatusForSelector(selector));
     };
@@ -432,7 +427,6 @@ const IconForResource = ({ selector }: { selector: OpSelector }) => {
           break;
       }
     };
-
     subscribeToOperations(callback);
     return () => {
       unsubscribeFromOperations(callback);
