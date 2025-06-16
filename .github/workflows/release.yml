@@ -82,4 +82,4 @@ jobs:
         with:
           files: |
             ./dist-installers/Backrest-setup-x86_64.exe
-            ./dist-installers/Backrest-setup-arm64.exe
+      #      ./dist-installers/Backrest-setup-arm64.exe
