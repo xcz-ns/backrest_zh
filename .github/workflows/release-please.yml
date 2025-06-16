@@ -1,7 +1,7 @@
 # 本工作流使用 Release Please 自动创建发布 PR 和 Release
 # 参考：https://github.com/google-github-actions/release-please-action
 
-name: 自动版本发布（Release Please）
+name: 自动版本发布
 
 on:
   push:
