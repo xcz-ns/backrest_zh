@@ -1,9 +1,6 @@
 # .goreleaser.yml
 version: 1
 
-git:
-  dirty: true
-
 env:
   - BACKREST_BUILD_VERSION={{.Version}}
 
