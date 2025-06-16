@@ -27,7 +27,6 @@ builds:
     binary: backrest-windows-tray
     env:
       - CGO_ENABLED=1
-      - GO111MODULE=on
     ldflags: "-H=windowsgui"
     goos:
       - windows
@@ -36,17 +35,15 @@ builds:
 
 archives:
   - format: tar.gz
-    name_template: "{{ .ProjectName }}_{{- title .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
+    allow_different_binary_count: true
     files:
-      - install.sh
-      - uninstall.sh
       - LICENSE
       - README.md
       - CHANGELOG.md
-    allow_different_binary_count: true
 
 dockers:
   - image_templates:
@@ -55,10 +52,16 @@ dockers:
     dockerfile: Dockerfile.alpine
     use: buildx
     goarch: amd64
+    goos: linux
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
     skip_push: false
+
+release:
+  github:
+    owner: xcz-ns
+    name: backrest
 
 changelog:
   sort: asc
@@ -66,8 +69,3 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
-
-release:
-  github:
-    owner: xcz-ns
-    name: backrest
