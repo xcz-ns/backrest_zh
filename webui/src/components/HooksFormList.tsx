@@ -381,6 +381,7 @@ const hookTypes: {
         </>
       );
     },
+  },
 ];
 const findHookTypeName = (field: HookFields): string => {
   if (!field) {
