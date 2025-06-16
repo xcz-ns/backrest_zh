@@ -172,5 +172,5 @@ changelog:
 
 release:
   github:
-    owner: garethgeorge
+    owner: xcz-ns
     name: backrest
