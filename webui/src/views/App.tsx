@@ -37,29 +37,29 @@ import { create } from "@bufbuild/protobuf";
 const { Header, Sider } = Layout;
 
 // 懒加载组件
-const 汇总仪表板 = React.lazy(() =>
+const SummaryDashboard = React.lazy(() =>
   import("./SummaryDashboard").then((m) => ({
     default: m.SummaryDashboard,
   }))
 );
-const 入门指南 = React.lazy(() =>
+const GettingStartedGuide = React.lazy(() =>
   import("./GettingStartedGuide").then((m) => ({
     default: m.GettingStartedGuide,
   }))
 );
-const 计划视图 = React.lazy(() =>
+const PlanView = React.lazy(() =>
   import("./PlanView").then((m) => ({
     default: m.PlanView,
   }))
 );
-const 仓库视图 = React.lazy(() =>
+const RepoView = React.lazy(() =>
   import("./RepoView").then((m) => ({
     default: m.RepoView,
   }))
 );
 
 // 仓库视图容器
-const 仓库视图容器 = () => {
+const RepoViewContainer = () => {
   const { repoId } = useParams();
   const [config, setConfig] = useConfig();
   
