@@ -66,7 +66,8 @@ archives:
 
 dockers:
   - image_templates:
-      - dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64
+      - dr.xczns.top:58808/backrest:latest
+      - dr.xczns.top:58808/backrest:{{ .Tag }}
     dockerfile: Dockerfile.alpine
     use: buildx
     goarch: amd64
@@ -74,76 +75,6 @@ dockers:
       - "--pull"
       - "--platform=linux/amd64"
     skip_push: false
-
-  - image_templates:
-      - dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-arm64
-    dockerfile: Dockerfile.alpine
-    use: buildx
-    goarch: arm64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64/v8"
-    skip_push: true
-
-  - image_templates:
-      - dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64
-    dockerfile: Dockerfile.scratch
-    use: buildx
-    goarch: amd64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/amd64"
-    skip_push: false
-
-  - image_templates:
-      - dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-arm64
-    dockerfile: Dockerfile.scratch
-    use: buildx
-    goarch: arm64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64/v8"
-    skip_push: true
-
-  - image_templates:
-      - dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-armv6
-    dockerfile: Dockerfile.scratch
-    use: buildx
-    goarch: arm
-    goarm: 6
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm/v6"
-    skip_push: true
-
-docker_manifests:
-  - name_template: "dr.xczns.top:58808/backrest:latest"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}.{{ .Minor }}"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:{{ .Tag }}"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:latest-alpine"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-alpine-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:scratch"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}-scratch"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:v{{ .Major }}.{{ .Minor }}-scratch"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
-  - name_template: "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch"
-    image_templates:
-      - "dr.xczns.top:58808/backrest:{{ .Tag }}-scratch-amd64"
 
 brews:
   - name: backrest
