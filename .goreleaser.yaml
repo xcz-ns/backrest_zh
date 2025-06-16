@@ -1,4 +1,3 @@
-# .goreleaser.yml
 version: 1
 
 env:
@@ -22,7 +21,9 @@ builds:
       - freebsd
     goarch:
       - amd64
-    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
 
   - id: linux
     main: ./cmd/backrest
@@ -32,7 +33,10 @@ builds:
       - linux
     goarch:
       - amd64
-    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+      - arm64
+      - arm
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
 
   - id: backrestmon
     main: ./cmd/backrestmon
@@ -40,15 +44,22 @@ builds:
     env:
       - CGO_ENABLED=1
       - GO111MODULE=on
-    ldflags: "-H=windowsgui"
+    ldflags: -H=windowsgui
     goos:
       - windows
     goarch:
       - amd64
+      - arm64
 
 archives:
   - format: tar.gz
-    name_template: "{{ .ProjectName }}_{{- title .Os }}_{{- if eq .Arch \"amd64\" }}x86_64{{- else if eq .Arch \"386\" }}i386{{- else }}{{ .Arch }}{{ end }}{{- if .Arm }}v{{ .Arm }}{{ end }}"
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
         format: zip
@@ -62,15 +73,55 @@ archives:
 
 dockers:
   - image_templates:
-      - dr.xczns.top:58808/backrest:latest
-      - dr.xczns.top:58808/backrest:{{ .Tag }}
+      - garethgeorge/backrest:latest
+      - garethgeorge/backrest:{{ .Tag }}
     dockerfile: Dockerfile.alpine
     use: buildx
-    goarch: amd64
     build_flag_templates:
       - "--pull"
-      - "--platform=linux/amd64"
-    skip_push: false
+      - "--platform=linux/amd64,linux/arm64"
+
+  - image_templates:
+      - garethgeorge/backrest:scratch-latest
+      - garethgeorge/backrest:scratch-{{ .Tag }}
+    dockerfile: Dockerfile.scratch
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/amd64,linux/arm64,linux/arm/v6"
+
+docker_manifests:
+  - name_template: "garethgeorge/backrest:latest"
+    image_templates:
+      - "garethgeorge/backrest:latest"
+      - "garethgeorge/backrest:scratch-latest"
+
+  - name_template: "garethgeorge/backrest:{{ .Tag }}"
+    image_templates:
+      - "garethgeorge/backrest:{{ .Tag }}"
+      - "garethgeorge/backrest:scratch-{{ .Tag }}"
+
+brews:
+  - name: backrest
+    homepage: https://github.com/garethgeorge/backrest
+    description: "Backrest is a web UI and orchestrator for restic backup."
+
+    url_template: "https://github.com/garethgeorge/backrest/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+
+    repository:
+      owner: garethgeorge
+      name: homebrew-backrest-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_GITHUB_TOKEN }}"
+
+    service: |
+      run opt_bin/"backrest"
+      error_log_path var/"log/backrest.log"
+      log_path var/"log/backrest.log"
 
 changelog:
   sort: asc
@@ -82,4 +133,4 @@ changelog:
 release:
   github:
     owner: xcz-ns
-    name: backrest
+    name: backrest_zh
