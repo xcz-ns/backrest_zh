@@ -1,11 +1,11 @@
-name: Docs
+#name: Docs
 
-on:
-  push:
+#on:
+#  push:
 #    branches: ["main"]
 #    paths:
 #      - "docs/**"
-  workflow_dispatch:
+#  workflow_dispatch:
 
 jobs:
   build:
