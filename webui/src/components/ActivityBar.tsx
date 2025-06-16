@@ -66,8 +66,7 @@ export const ActivityBar = () => {
 
         return (
           <span key={idx} style={{ marginRight: "2em" }}>
-            {displayName} in progress for plan {op.planId} to {op.repoId} for{" "}
-            {formatDuration(Date.now() - Number(op.unixTimeStartMs))}
+            计划 {op.planId} 正在对 {op.repoId} 执行 {displayName}，已执行 {formatDuration(Date.now() - Number(op.unixTimeStartMs))}
           </span>
         );
       })}

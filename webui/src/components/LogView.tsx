@@ -37,7 +37,7 @@ export const LogView = ({ logref }: { logref: string }) => {
           });
         }
       } catch (e) {
-        // setLines((prev) => [...prev, `Fetch log error: ${e}`]);
+        // setLines((prev) => [...prev, `获取日志失败: ${e}`]);
       }
     })();
 
@@ -74,8 +74,7 @@ export const LogView = ({ logref }: { logref: string }) => {
             type="link"
             onClick={() => setLimit(limit * 10)}
           >
-            Show {Math.min(limit * 9, lines.length - limit)} more lines out of{" "}
-            {lines.length} available...
+            显示更多 {Math.min(limit * 9, lines.length - limit)} 行，共 {lines.length} 行可用...
           </Button>
         </>
       ) : null}

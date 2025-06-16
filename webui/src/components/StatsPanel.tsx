@@ -38,13 +38,13 @@ const StatsPanel = ({ selector }: { selector: OpSelector }) => {
         setOperations(ops);
       })
       .catch((e) => {
-        alertApi!.error("Failed to fetch operations: " + e.message);
+        alertApi!.error("获取操作失败: " + e.message);
       });
   }, [JSON.stringify(selector)]);
 
   if (operations.length === 0) {
     return (
-      <Empty description="No stats available. Have you run a stats operation yet?" />
+      <Empty description="暂无统计数据。您运行过统计操作吗？" />
     );
   }
 
@@ -90,15 +90,17 @@ const StatsPanel = ({ selector }: { selector: OpSelector }) => {
                 dataKey="totalSizeBytes"
                 tickFormatter={(v) => formatBytes(v)}
               />
-              <Tooltip labelFormatter={(x) => formatDate(x as number)}
-                       formatter={(y) => [formatBytes(y as number), 'Total Size']}/>
+              <Tooltip 
+                labelFormatter={(x) => formatDate(x as number)}
+                formatter={(y) => [formatBytes(y as number), '总大小']}
+              />
               <Legend />
               <Line
                 yAxisId="left"
                 type="monotone"
                 dataKey="totalSizeBytes"
                 stroke="#8884d8"
-                name="Total Size"
+                name="总大小"
               ></Line>
             </LineChart>
           </ResponsiveContainer>
@@ -121,7 +123,7 @@ const StatsPanel = ({ selector }: { selector: OpSelector }) => {
                 type="monotone"
                 dataKey="compressionRatio"
                 stroke="#82ca9d"
-                name="Compression Ratio"
+                name="压缩率"
               ></Line>
             </LineChart>
           </ResponsiveContainer>
@@ -146,7 +148,7 @@ const StatsPanel = ({ selector }: { selector: OpSelector }) => {
                 type="monotone"
                 dataKey="snapshotCount"
                 stroke="#ff7300"
-                name="Snapshot Count"
+                name="快照数量"
               ></Line>
             </LineChart>
           </ResponsiveContainer>
@@ -169,7 +171,7 @@ const StatsPanel = ({ selector }: { selector: OpSelector }) => {
                 type="monotone"
                 dataKey="totalBlobCount"
                 stroke="#00BBBB"
-                name="Total Blob Count"
+                name="总Blob数量"
               ></Line>
             </LineChart>
           </ResponsiveContainer>

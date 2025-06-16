@@ -17,13 +17,11 @@ import {
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Rule } from "antd/es/form";
-
 export interface HookFormData {
   hooks: {
     conditions: string[];
   }[];
 }
-
 export interface HookFields {
   conditions: string[];
   actionCommand?: any;
@@ -34,34 +32,30 @@ export interface HookFields {
   actionShoutrrr?: any;
   actionHealthchecks?: any;
 }
-
 export const hooksListTooltipText = (
   <>
-    Hooks let you configure actions e.g. notifications and scripts that run in
-    response to the backup lifecycle. See{" "}
+    钩子允许您配置在备份生命周期响应时运行的操作，例如通知和脚本。请参阅{" "}
     <a
-      href="https://garethgeorge.github.io/backrest/docs/hooks"
+      href="https://garethgeorge.github.io/backrest/docs/hooks" 
       target="_blank"
     >
-      the hook documentation
+      钩子文档
     </a>{" "}
-    for available options, or
+    查看可用选项，或查阅
     <a
-      href="https://garethgeorge.github.io/backrest/cookbooks/command-hook-examples"
+      href="https://garethgeorge.github.io/backrest/cookbooks/command-hook-examples" 
       target="_blank"
     >
-      the cookbook
+      操作指南
     </a>
-    for scripting examples.
+    获取脚本示例。
   </>
 );
-
 /**
- * HooksFormList is a UI component for editing a list of hooks that can apply either at the repo level or at the plan level.
+ * HooksFormList 是一个 UI 组件，用于编辑可在仓库级别或计划级别应用的钩子列表。
  */
 export const HooksFormList = () => {
   const form = Form.useFormInstance();
-
   return (
     <Form.List name="hooks">
       {(fields, { add, remove }, { errors }) => (
@@ -71,13 +65,12 @@ export const HooksFormList = () => {
               "hooks",
               field.name,
             ]) as HookFields;
-
             return (
               <Card
                 key={index}
                 title={
                   <>
-                    Hook {index} {findHookTypeName(hookData)}
+                    钩子 {index} {findHookTypeName(hookData)}
                     <MinusCircleOutlined
                       className="dynamic-delete-button"
                       onClick={() => remove(field.name)}
@@ -98,7 +91,7 @@ export const HooksFormList = () => {
                       mode="multiple"
                       allowClear
                       style={{ width: "100%" }}
-                      placeholder="Runs when..."
+                      placeholder="运行条件..."
                       options={Hook_ConditionSchema.values.map((v) => ({
                         label: v.name,
                         value: v.name,
@@ -142,7 +135,7 @@ export const HooksFormList = () => {
                 icon={<PlusOutlined />}
                 style={{ width: "100%" }}
               >
-                Add Hook
+                添加钩子
               </Button>
             </Popover>
             <Form.ErrorList errors={errors} />
@@ -152,7 +145,6 @@ export const HooksFormList = () => {
     </Form.List>
   );
 };
-
 const hookTypes: {
   name: string;
   template: HookFields;
@@ -160,7 +152,7 @@ const hookTypes: {
   component: ({ field }: { field: FormListFieldData }) => React.ReactNode;
 }[] = [
   {
-    name: "Command",
+    name: "命令",
     template: {
       actionCommand: {
         command: "echo {{ .ShellEscape .Summary }}",
@@ -171,10 +163,10 @@ const hookTypes: {
     component: ({ field }: { field: FormListFieldData }) => {
       return (
         <>
-          <Tooltip title="Script to execute.">Script:</Tooltip>
+          <Tooltip title="要执行的脚本">脚本：</Tooltip>
           <Form.Item
             name={[field.name, "actionCommand", "command"]}
-            rules={[requiredField("command is required")]}
+            rules={[requiredField("命令是必填项")]}
           >
             <Input.TextArea
               style={{ width: "100%", fontFamily: "monospace" }}
@@ -199,21 +191,21 @@ const hookTypes: {
         <>
           <Form.Item
             name={[field.name, "actionShoutrrr", "shoutrrrUrl"]}
-            rules={[requiredField("shoutrrr URL is required")]}
+            rules={[requiredField("Shoutrrr URL 是必填项")]}
           >
             <Input
               addonBefore={
                 <Tooltip
                   title={
                     <>
-                      Shoutrrr is a multi-platform notification service,{" "}
+                      Shoutrrr 是一个多平台通知服务,{" "}
                       <a
-                        href="https://containrrr.dev/shoutrrr/v0.8/services/overview/"
+                        href="https://containrrr.dev/shoutrrr/v0.8/services/overview/" 
                         target="_blank"
                       >
-                        see docs
+                        查看文档
                       </a>{" "}
-                      to learn more about supported services
+                      了解支持的服务
                     </>
                   }
                 >
@@ -222,7 +214,7 @@ const hookTypes: {
               }
             />
           </Form.Item>
-          Text Template:
+          文本模板：
           <Form.Item name={[field.name, "actionShoutrrr", "template"]}>
             <Input.TextArea
               style={{ width: "100%", fontFamily: "monospace" }}
@@ -247,13 +239,13 @@ const hookTypes: {
         <>
           <Form.Item
             name={[field.name, "actionDiscord", "webhookUrl"]}
-            rules={[requiredField("webhook URL is required")]}
+            rules={[requiredField("Webhook URL 是必填项")]}
           >
             <Input
               addonBefore={<div style={{ width: "8em" }}>Discord Webhook</div>}
             />
           </Form.Item>
-          Text Template:
+          文本模板：
           <Form.Item name={[field.name, "actionDiscord", "template"]}>
             <Input.TextArea
               style={{ width: "100%", fontFamily: "monospace" }}
@@ -283,31 +275,31 @@ const hookTypes: {
           <Form.Item
             name={[field.name, "actionGotify", "baseUrl"]}
             rules={[
-              requiredField("gotify base URL is required"),
+              requiredField("Gotify 基础 URL 是必填项"),
               { type: "string" },
             ]}
           >
             <Input
-              addonBefore={<div style={{ width: "8em" }}>Gotify Base URL</div>}
+              addonBefore={<div style={{ width: "8em" }}>Gotify 基础 URL</div>}
             />
           </Form.Item>
           <Form.Item
             name={[field.name, "actionGotify", "token"]}
-            rules={[requiredField("gotify token is required")]}
+            rules={[requiredField("Gotify 令牌是必填项")]}
           >
             <Input
-              addonBefore={<div style={{ width: "8em" }}>Gotify Token</div>}
+              addonBefore={<div style={{ width: "8em" }}>Gotify 令牌</div>}
             />
           </Form.Item>
           <Form.Item
             name={[field.name, "actionGotify", "titleTemplate"]}
-            rules={[requiredField("gotify title template is required")]}
+            rules={[requiredField("Gotify 标题模板是必填项")]}
           >
             <Input
-              addonBefore={<div style={{ width: "8em" }}>Title Template</div>}
+              addonBefore={<div style={{ width: "8em" }}>标题模板</div>}
             />
           </Form.Item>
-          Text Template:
+          文本模板：
           <Form.Item name={[field.name, "actionGotify", "template"]}>
             <Input.TextArea
               style={{ width: "100%", fontFamily: "monospace" }}
@@ -317,12 +309,12 @@ const hookTypes: {
             <Select
               allowClear
               style={{ width: "100%" }}
-              placeholder={"Set priority"}
+              placeholder={"设置优先级"}
               options={[
-                  {label: "0 - No notification", value: 0},
-                  {label: "1 - Icon in notification bar", value: 1},
-                  {label: "4 - Icon in notification bar + Sound", value: 4},
-                  {label: "8 - Icon in notification bar + Sound + Vibration", value: 8},
+                { label: "0 - 无通知", value: 0 },
+                { label: "1 - 通知栏图标", value: 1 },
+                { label: "4 - 通知栏图标+声音", value: 4 },
+                { label: "8 - 通知栏图标+声音+震动", value: 8 },
               ]}
             />
           </Form.Item>
@@ -345,13 +337,13 @@ const hookTypes: {
         <>
           <Form.Item
             name={[field.name, "actionSlack", "webhookUrl"]}
-            rules={[requiredField("webhook URL is required")]}
+            rules={[requiredField("Webhook URL 是必填项")]}
           >
             <Input
               addonBefore={<div style={{ width: "8em" }}>Slack Webhook</div>}
             />
           </Form.Item>
-          Text Template:
+          文本模板：
           <Form.Item name={[field.name, "actionSlack", "template"]}>
             <Input.TextArea
               style={{ width: "100%", fontFamily: "monospace" }}
@@ -376,11 +368,11 @@ const hookTypes: {
         <>
           <Form.Item
             name={[field.name, "actionHealthchecks", "webhookUrl"]}
-            rules={[requiredField("Ping URL is required")]}
+            rules={[requiredField("Ping URL 是必填项")]}
           >
             <Input addonBefore={<div style={{ width: "8em" }}>Ping URL</div>} />
           </Form.Item>
-          Text Template:
+          文本模板：
           <Form.Item name={[field.name, "actionHealthchecks", "template"]}>
             <Input.TextArea
               style={{ width: "100%", fontFamily: "monospace" }}
@@ -389,70 +381,59 @@ const hookTypes: {
         </>
       );
     },
-  },
 ];
-
 const findHookTypeName = (field: HookFields): string => {
   if (!field) {
-    return "Unknown";
+    return "未知";
   }
   for (const hookType of hookTypes) {
     if (hookType.oneofKey in field) {
       return hookType.name;
     }
   }
-  return "Unknown";
+  return "未知";
 };
-
 const HookBuilder = ({ field }: { field: FormListFieldData }) => {
   const form = Form.useFormInstance();
   const hookData = form.getFieldValue(["hooks", field.name]) as HookFields;
-
   if (!hookData) {
-    return <p>Unknown hook type</p>;
+    return <p>未知钩子类型</p>;
   }
-
   for (const hookType of hookTypes) {
     if (hookType.oneofKey in hookData) {
       return hookType.component({ field });
     }
   }
-
-  return <p>Unknown hook type</p>;
+  return <p>未知钩子类型</p>;
 };
-
 const ItemOnErrorSelector = ({ field }: { field: FormListFieldData }) => {
   return (
     <>
       <Tooltip
         title={
           <>
-            What happens when the hook fails (only effective on start hooks e.g.
-            backup start, prune start, check start)
+            钩子失败时的行为（仅对启动钩子有效，例如备份开始、清理开始、检查开始）
             <ul>
               <li>
-                IGNORE - the failure is ignored, subsequent hooks and the backup
-                operation will run as normal.
+                忽略 - 忽略失败，后续钩子和备份操作将正常运行。
               </li>
               <li>
-                FATAL - stops the backup with an error status (triggers an error
-                notification). Skips running all subsequent hooks.
+                致命 - 停止备份并标记为错误状态（触发错误通知）。跳过所有后续钩子。
               </li>
               <li>
-                CANCEL - marks the backup as cancelled but does not trigger any
-                error notification. Skips running all subsequent hooks.
+                取消 - 标记备份为已取消但不触发任何错误通知。跳过所有后续钩子。
               </li>
             </ul>
           </>
         }
       >
-        Error Behavior:
+        错误行为：
       </Tooltip>
       <Form.Item name={[field.name, "onError"]}>
         <Select
           allowClear
           style={{ width: "100%" }}
-          placeholder={"Specify what happens when this hook fails..."}
+          placeholder={"选择钩子失败时的响应..."}
           options={Hook_OnErrorSchema.values.map((v) => ({
             label: v.name,
             value: v.name,
@@ -462,43 +443,40 @@ const ItemOnErrorSelector = ({ field }: { field: FormListFieldData }) => {
     </>
   );
 };
-
 const requiredField = (message: string, extra?: Rule) => ({
   required: true,
   message: message,
 });
-
 const HookConditionsTooltip = ({ children }: { children: React.ReactNode }) => {
   return (
     <Tooltip
       title={
         <div>
-          Available conditions
+          可用条件
           <ul>
-            <li>CONDITION_ANY_ERROR - error executing any task</li>
-            <li>CONDITION_SNAPSHOT_START - start of a backup operation</li>
+            <li>CONDITION_ANY_ERROR - 执行任何任务时出错</li>
+            <li>CONDITION_SNAPSHOT_START - 备份操作开始</li>
             <li>
-              CONDITION_SNAPSHOT_END - end of backup operation (success or
-              failure)
+              CONDITION_SNAPSHOT_END - 备份操作结束（成功或失败）
             </li>
             <li>
-              CONDITION_SNAPSHOT_SUCCESS - end of successful backup operation
+              CONDITION_SNAPSHOT_SUCCESS - 备份成功结束
             </li>
-            <li>CONDITION_SNAPSHOT_ERROR - end of failed backup</li>
-            <li>CONDITION_SNAPSHOT_WARNING - end of partial backup</li>
-            <li>CONDITION_PRUNE_START - start of prune operation</li>
-            <li>CONDITION_PRUNE_SUCCESS - end of successful prune</li>
-            <li>CONDITION_PRUNE_ERROR - end of failed prune</li>
-            <li>CONDITION_CHECK_START - start of check operation</li>
-            <li>CONDITION_CHECK_SUCCESS - end of successful check</li>
-            <li>CONDITION_CHECK_ERROR - end of failed check</li>
+            <li>CONDITION_SNAPSHOT_ERROR - 备份失败结束</li>
+            <li>CONDITION_SNAPSHOT_WARNING - 部分备份结束</li>
+            <li>CONDITION_PRUNE_START - 清理操作开始</li>
+            <li>CONDITION_PRUNE_SUCCESS - 清理成功结束</li>
+            <li>CONDITION_PRUNE_ERROR - 清理失败结束</li>
+            <li>CONDITION_CHECK_START - 检查操作开始</li>
+            <li>CONDITION_CHECK_SUCCESS - 检查成功结束</li>
+            <li>CONDITION_CHECK_ERROR - 检查失败结束</li>
           </ul>
-          for more info see the{" "}
+          更多信息请查阅{" "}
           <a
-            href="https://garethgeorge.github.io/backrest/docs/hooks"
+            href="https://garethgeorge.github.io/backrest/docs/hooks" 
             target="_blank"
           >
-            documentation
+            文档
           </a>
         </div>
       }

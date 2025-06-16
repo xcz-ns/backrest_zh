@@ -40,11 +40,9 @@ import { OperationIcon } from "./OperationIcon";
 import { shouldHideOperation } from "../state/oplog";
 import { create, toJsonString } from "@bufbuild/protobuf";
 import { useConfig } from "./ConfigProvider";
-
 type OpTreeNode = DataNode & {
   backup?: FlowDisplayInfo;
 };
-
 export const OperationTreeView = ({
   req,
   isPlanView,
@@ -57,8 +55,7 @@ export const OperationTreeView = ({
   const setScreenWidth = useState(window.innerWidth)[1];
   const [backups, setBackups] = useState<FlowDisplayInfo[]>([]);
   const [selectedBackupId, setSelectedBackupId] = useState<bigint | null>(null);
-
-  // track the screen width so we can switch between mobile and desktop layouts.
+  // 跟踪屏幕宽度以切换移动和桌面布局
   useEffect(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
@@ -68,15 +65,11 @@ export const OperationTreeView = ({
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  // track backups for this operation tree view.
+  // 跟踪此操作树视图的备份
   useEffect(() => {
     setSelectedBackupId(null);
-
     const logState = new OplogState((op) => !shouldHideOperation(op));
-
     const backupInfoByFlowID = new Map<bigint, FlowDisplayInfo>();
-
     logState.subscribe((ids, flowIDs, event) => {
       if (
         event === OperationEventType.EVENT_CREATED ||
@@ -85,10 +78,9 @@ export const OperationTreeView = ({
         for (const flowID of flowIDs) {
           const ops = logState.getByFlowID(flowID);
           if (!ops || ops[0].op.case === "operationRunHook") {
-            // sometimes hook operations become awkwardly orphaned. These are ignored.
+            // 有时钩子操作会变得孤立，这些会被忽略
             continue;
           }
-
           const displayInfo = displayInfoForFlow(ops);
           if (!displayInfo.hidden) {
             backupInfoByFlowID.set(flowID, displayInfo);
@@ -101,30 +93,23 @@ export const OperationTreeView = ({
           backupInfoByFlowID.delete(flowID);
         }
       }
-
       setBackups([...backupInfoByFlowID.values()]);
     });
-
     return syncStateFromRequest(logState, req, (err) => {
-      alertApi!.error("API error: " + err.message);
+      alertApi!.error("API错误: " + err.message);
     });
   }, [toJsonString(GetOperationsRequestSchema, req)]);
-
   if (backups.length === 0) {
     return (
-      <Empty description={""} image={Empty.PRESENTED_IMAGE_SIMPLE}></Empty>
+      <Empty description="" image={Empty.PRESENTED_IMAGE_SIMPLE}></Empty>
     );
   }
-
   const useMobileLayout = isMobile();
-
   const backupsByInstance = _.groupBy(backups, (b) => {
     return b.instanceID;
   });
-
   let primaryTree: React.ReactNode | null = null;
   const otherTrees: React.ReactNode[] = [];
-
   for (const instance of Object.keys(backupsByInstance)) {
     const instanceBackups = backupsByInstance[instance];
     const instTree = (
@@ -137,7 +122,6 @@ export const OperationTreeView = ({
         expand={instance === config!.instance}
       />
     );
-
     if (instance === config!.instance) {
       primaryTree = instTree;
     } else {
@@ -149,7 +133,6 @@ export const OperationTreeView = ({
       );
     }
   }
-
   let displayTree: React.ReactNode;
   if (otherTrees.length > 0) {
     displayTree = (
@@ -162,7 +145,6 @@ export const OperationTreeView = ({
   } else {
     displayTree = primaryTree;
   }
-
   if (useMobileLayout) {
     const backup = backups.find((b) => b.flowID === selectedBackupId);
     return (
@@ -181,7 +163,6 @@ export const OperationTreeView = ({
       </>
     );
   }
-
   return (
     <Flex vertical gap="middle">
       <Splitter>
@@ -195,13 +176,12 @@ export const OperationTreeView = ({
                 backup={backups.find((b) => b.flowID === selectedBackupId)}
               />
             ) : null}
-          </BackupViewContainer>{" "}
+          </BackupViewContainer>
         </Splitter.Panel>
       </Splitter>
     </Flex>
   );
 };
-
 const DisplayOperationTree = ({
   operations,
   isPlanView,
@@ -217,7 +197,6 @@ const DisplayOperationTree = ({
     tree: OpTreeNode[];
     expanded: React.Key[];
   }>({ tree: [], expanded: [] });
-
   useEffect(() => {
     const cancel = setTimeout(
       () => {
@@ -226,16 +205,13 @@ const DisplayOperationTree = ({
       },
       treeData && treeData.tree.length > 0 ? 100 : 0
     );
-
     return () => {
       clearTimeout(cancel);
     };
   }, [operations]);
-
   if (treeData.tree.length === 0) {
     return <></>;
   }
-
   return (
     <Tree<OpTreeNode>
       treeData={treeData.tree}
@@ -252,7 +228,6 @@ const DisplayOperationTree = ({
         }
         if (node.backup !== undefined) {
           const b = node.backup;
-
           return (
             <>
               {displayTypeToString(b.type)} {formatTime(b.displayTime)}{" "}
@@ -265,13 +240,12 @@ const DisplayOperationTree = ({
           );
         }
         return (
-          <span>ERROR: this element should not appear, this is a bug.</span>
+          <span>错误：此元素不应出现，这是个bug。</span>
         );
       }}
     />
   );
 };
-
 const treeLeafCache = new WeakMap<FlowDisplayInfo, OpTreeNode>();
 const buildTree = (
   operations: FlowDisplayInfo[],
@@ -281,17 +255,15 @@ const buildTree = (
     const grouped = _.groupBy(operations, (op) => {
       return op.instanceID;
     });
-
     const entries: OpTreeNode[] = _.map(grouped, (value, key) => {
       let title: React.ReactNode = key;
       if (title === "_unassociated_") {
         title = (
-          <Tooltip title="_unassociated_ instance ID collects operations that do not specify a `created-by:` tag denoting the backrest install that created them.">
+          <Tooltip title="_unassociated_ 实例ID收集未指定created-by标签的操作，该标签表示创建它们的backrest安装。">
             _unassociated_
           </Tooltip>
         );
       }
-
       return {
         title,
         key: "i" + value[0].instanceID,
@@ -301,7 +273,6 @@ const buildTree = (
     entries.sort(sortByKeyReverse);
     return entries;
   };
-
   const buildTreePlan = (operations: FlowDisplayInfo[]): OpTreeNode[] => {
     const grouped = _.groupBy(operations, (op) => {
       return op.planID;
@@ -310,18 +281,18 @@ const buildTree = (
       let title: React.ReactNode = value[0].planID;
       if (title === "_unassociated_") {
         title = (
-          <Tooltip title="_unassociated_ plan ID collects operations that do not specify a `plan:` tag denoting the backup plan that created them.">
+          <Tooltip title="_unassociated_ 计划ID收集未指定plan标签的操作，该标签表示创建它们的备份计划。">
             _unassociated_
           </Tooltip>
         );
       } else if (title === "_system_") {
         title = (
-          <Tooltip title="_system_ plan ID collects health operations not associated with any single plan e.g. repo level check or prune runs.">
+          <Tooltip title="_system_ 计划ID收集与任何单个计划无关的健康操作，例如仓库级检查或清理运行。">
             _system_
           </Tooltip>
         );
       }
-      const uniqueKey = value[0].planID + "\x01" + value[0].instanceID + "\x01"; // use \x01 as delimiter
+      const uniqueKey = value[0].planID + "\x01" + value[0].instanceID + "\x01"; // 使用\x01作为分隔符
       return {
         key: uniqueKey,
         title,
@@ -331,7 +302,6 @@ const buildTree = (
     entries.sort(sortByKeyReverse);
     return entries;
   };
-
   const buildTreeDay = (
     keyPrefix: string,
     operations: FlowDisplayInfo[]
@@ -350,7 +320,6 @@ const buildTree = (
     entries.sort(sortByKey);
     return entries;
   };
-
   const buildTreeLeaf = (operations: FlowDisplayInfo[]): OpTreeNode[] => {
     const entries = _.map(operations, (b): OpTreeNode => {
       let cached = treeLeafCache.get(b);
@@ -359,7 +328,6 @@ const buildTree = (
       }
       let iconColor = colorForStatus(b.status);
       let icon: React.ReactNode | null = <QuestionOutlined />;
-
       if (
         b.status === OperationStatus.STATUS_ERROR ||
         b.status === OperationStatus.STATUS_WARNING
@@ -368,7 +336,6 @@ const buildTree = (
       } else {
         icon = <OperationIcon status={b.status} type={b.type} />;
       }
-
       let newLeaf = {
         key: b.flowID,
         backup: b,
@@ -382,7 +349,6 @@ const buildTree = (
     });
     return entries;
   };
-
   const expandTree = (
     entries: OpTreeNode[],
     budget: number,
@@ -419,7 +385,6 @@ const buildTree = (
         h2(entries, curDepth + 1, budget);
         return;
       }
-
       for (const entry of entries) {
         if (!entry.children) continue;
         h1(entry.children, curDepth + 1);
@@ -428,7 +393,6 @@ const buildTree = (
     h1(entries, 0);
     return expanded;
   };
-
   let tree: OpTreeNode[];
   let expanded: React.Key[];
   if (isForPlanView) {
@@ -440,7 +404,6 @@ const buildTree = (
   }
   return { tree, expanded };
 };
-
 const sortByKey = (a: OpTreeNode, b: OpTreeNode) => {
   if (a.key < b.key) {
     return 1;
@@ -449,26 +412,21 @@ const sortByKey = (a: OpTreeNode, b: OpTreeNode) => {
   }
   return 0;
 };
-
 const sortByKeyReverse = (a: OpTreeNode, b: OpTreeNode) => {
   return -sortByKey(a, b);
 };
-
 const BackupViewContainer = ({ children }: { children: React.ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const refresh = useState(0)[1];
   const [topY, setTopY] = useState(0);
   const [bottomY, setBottomY] = useState(0);
-
   useEffect(() => {
     if (!ref.current || !innerRef.current) {
       return;
     }
-
     let offset = 0;
-
-    // handle scroll events to keep the fixed container in view.
+    // 处理滚动事件以保持固定容器可见
     const handleScroll = () => {
       if (!ref.current) {
         return;
@@ -478,20 +436,16 @@ const BackupViewContainer = ({ children }: { children: React.ReactNode }) => {
       let topY = Math.max(ref.current!.getBoundingClientRect().top, 0);
       let bottomY = topY;
       if (topY == 0) {
-        // wiggle only if the top is actually the top edge of the screen.
+        // 如果顶部实际上是屏幕顶部，则应用抖动
         topY -= wiggle;
         bottomY += wiggle;
       }
-
       setTopY(topY);
       setBottomY(bottomY);
-
       refresh(Math.random());
     };
-
     window.addEventListener("scroll", handleScroll);
-
-    // attach resize observer to ref to update the width of the fixed container.
+    // 附加调整观察器以更新固定容器的宽度
     const resizeObserver = new ResizeObserver(() => {
       handleScroll();
     });
@@ -504,9 +458,7 @@ const BackupViewContainer = ({ children }: { children: React.ReactNode }) => {
       resizeObserver.disconnect();
     };
   }, [ref.current, innerRef.current]);
-
   const rect = ref.current?.getBoundingClientRect();
-
   return (
     <div
       ref={ref}
@@ -529,11 +481,10 @@ const BackupViewContainer = ({ children }: { children: React.ReactNode }) => {
     </div>
   );
 };
-
 const BackupView = ({ backup }: { backup?: FlowDisplayInfo }) => {
   const alertApi = useAlertApi();
   if (!backup) {
-    return <Empty description="Backup not found." />;
+    return <Empty description="未找到备份。" />;
   } else {
     const doDeleteSnapshot = async () => {
       try {
@@ -544,32 +495,30 @@ const BackupView = ({ backup }: { backup?: FlowDisplayInfo }) => {
             snapshotId: backup.snapshotID!,
           })
         );
-        alertApi!.success("Snapshot forgotten.");
+        alertApi!.success("快照已遗忘。");
       } catch (e) {
-        alertApi!.error("Failed to forget snapshot: " + e);
+        alertApi!.error("忘记快照失败: " + e);
       }
     };
-
     const snapshotInFlow = backup?.operations.find(
       (op) => op.op.case === "operationIndexSnapshot"
     );
-
     const deleteButton =
       snapshotInFlow && snapshotInFlow.snapshotId ? (
-        <Tooltip title="This will remove the snapshot from the repository. This is irreversible.">
+        <Tooltip title="这将从仓库中移除快照，此操作不可逆。">
           <ConfirmButton
             type="text"
-            confirmTitle="Confirm forget?"
+            confirmTitle="确认忘记？"
             confirmTimeout={2000}
             onClickAsync={doDeleteSnapshot}
           >
-            Forget (Destructive)
+            忘记（破坏性操作）
           </ConfirmButton>
         </Tooltip>
       ) : (
         <ConfirmButton
           type="text"
-          confirmTitle="Confirm clear?"
+          confirmTitle="确认清除？"
           onClickAsync={async () => {
             backrestService.clearHistory(
               create(ClearHistoryRequestSchema, {
@@ -580,10 +529,9 @@ const BackupView = ({ backup }: { backup?: FlowDisplayInfo }) => {
             );
           }}
         >
-          Delete Event
+          删除事件
         </ConfirmButton>
       );
-
     return (
       <div style={{ width: "100%" }}>
         <div

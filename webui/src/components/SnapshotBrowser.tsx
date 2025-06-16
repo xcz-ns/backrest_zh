@@ -56,6 +56,7 @@ const replaceKeyInTree = (
   }
   return null;
 };
+
 const findInTree = (curNode: DataNode, key: string): DataNode | null => {
   if (curNode.key === key) {
     return curNode;
@@ -84,7 +85,7 @@ export const SnapshotBrowser = ({
   const alertApi = useAlertApi();
   const showModal = useShowModal();
   const [treeData, setTreeData] = useState<DataNode[]>([]);
-
+  
   useEffect(() => {
     setTreeData(
       respToNodes(
@@ -106,18 +107,15 @@ export const SnapshotBrowser = ({
     if (children) {
       return;
     }
-
     let path = key as string;
     if (!path.endsWith("/")) {
       path += "/";
     }
-
     const resp = await backrestService.listSnapshotFiles({
       path,
       repoId,
       snapshotId,
     });
-
     setTreeData((treeData) => {
       let toUpdate: DataNode | null = null;
       for (const node of treeData) {
@@ -126,14 +124,11 @@ export const SnapshotBrowser = ({
           break;
         }
       }
-
       if (!toUpdate) {
         return treeData;
       }
-
       const toUpdateCopy = { ...toUpdate };
       toUpdateCopy.children = respToNodes(resp);
-
       return treeData.map((node) => {
         const didUpdate = replaceKeyInTree(node, key as string, toUpdateCopy);
         if (didUpdate) {
@@ -165,7 +160,6 @@ const respToNodes = (resp: ListSnapshotFilesResponse): DataNode[] => {
       };
       return node;
     });
-
   return nodes;
 };
 
@@ -182,11 +176,11 @@ const FileNode = ({ entry }: { entry: LsEntry }) => {
           items: [
             {
               key: "info",
-              label: "Info",
+              label: "详情",
               onClick: () => {
                 showModal(
                   <Modal
-                    title={"Path Info for " + entry.path}
+                    title={"路径详情 " + entry.path}
                     open={true}
                     cancelButtonProps={{ style: { display: "none" } }}
                     onCancel={() => showModal(null)}
@@ -203,7 +197,7 @@ const FileNode = ({ entry }: { entry: LsEntry }) => {
             },
             {
               key: "restore",
-              label: "Restore to path",
+              label: "恢复到指定路径",
               onClick: () => {
                 showModal(
                   <RestoreModal
@@ -249,12 +243,11 @@ const RestoreModal = ({
 }) => {
   const [form] = Form.useForm<RestoreSnapshotRequest>();
   const showModal = useShowModal();
-
   const defaultPath = useMemo(() => {
     if (path === pathSeparator) {
       return "";
     }
-    return path + "-backrest-restore-" + normalizeSnapshotId(snapshotId);
+    return path + "-backrest-恢复-" + normalizeSnapshotId(snapshotId);
   }, [path]);
 
   useEffect(() => {
@@ -278,7 +271,7 @@ const RestoreModal = ({
         })
       );
     } catch (e: any) {
-      alert("Failed to restore snapshot: " + e.message);
+      alert("恢复快照失败: " + e.message);
     } finally {
       showModal(null); // close.
     }
@@ -295,19 +288,17 @@ const RestoreModal = ({
         if (p.endsWith(pathSeparator)) {
           p = p.slice(0, -1);
         }
-
         const dirname = basename(p);
         const files = await backrestService.pathAutocomplete(
           create(StringValueSchema, { value: dirname })
         );
-
         for (const file of files.values) {
           if (dirname + file === p) {
             form.setFields([
               {
                 name: "target",
                 errors: [
-                  "target path already exists, you must pick an empty path.",
+                  "目标路径已存在，请选择一个空路径。",
                 ],
               },
             ]);
@@ -337,20 +328,20 @@ const RestoreModal = ({
       open={true}
       onCancel={handleCancel}
       title={
-        "Restore " + path + " from snapshot " + normalizeSnapshotId(snapshotId)
+        "恢复 " + path + " 来自快照 " + normalizeSnapshotId(snapshotId)
       }
       width="40vw"
       footer={[
         <Button key="back" onClick={handleCancel}>
-          Cancel
+          取消
         </Button>,
         <ConfirmButton
           key="submit"
           type="primary"
-          confirmTitle="Confirm Restore?"
+          confirmTitle="确认恢复？"
           onClickAsync={handleOk}
         >
-          Restore
+          立即恢复
         </ConfirmButton>,
       ]}
     >
@@ -361,17 +352,14 @@ const RestoreModal = ({
         wrapperCol={{ span: 16 }}
       >
         <p>
-          If restoring to a specific path, ensure that the path does not already
-          exist or that you are comfortable overwriting the data at that
-          location.
+          如果要恢复到特定路径，请确保该路径不存在或您愿意覆盖该位置的数据。
         </p>
         <p>
-          You may set the path to an empty string to restore to your Downloads
-          folder.
+          您可以将路径设置为空字符串以恢复到下载目录。
         </p>
-        <Form.Item label="Restore to path" name="target" rules={[]}>
+        <Form.Item label="恢复到路径" name="target" rules={[]}>
           <URIAutocomplete
-            placeholder="Restoring to Downloads"
+            placeholder="恢复到下载目录"
             defaultValue={defaultPath}
           />
         </Form.Item>

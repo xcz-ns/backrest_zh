@@ -26,7 +26,7 @@ interface ScheduleDefaults {
 export const ScheduleDefaultsInfrequent: ScheduleDefaults = {
   maxFrequencyDays: 30,
   maxFrequencyHours: 30 * 24,
-  // midnight on the first day of the month
+  // 每月第一天的午夜
   cron: "0 0 1 * *",
   cronDropdowns: ["period", "months", "month-days", "week-days", "hours"],
   cronPeriods: ["month", "week"],
@@ -36,7 +36,7 @@ export const ScheduleDefaultsInfrequent: ScheduleDefaults = {
 export const ScheduleDefaultsDaily: ScheduleDefaults = {
   maxFrequencyDays: 1,
   maxFrequencyHours: 24,
-  // midnight every day
+  // 每天午夜
   cron: "0 0 * * *",
   cronDropdowns: [
     "period",
@@ -56,6 +56,7 @@ type SchedulingMode =
   | "maxFrequencyDays"
   | "maxFrequencyHours"
   | "cron";
+
 export const ScheduleFormItem = ({
   name,
   defaults,
@@ -100,7 +101,7 @@ export const ScheduleFormItem = ({
         rules={[
           {
             required: true,
-            message: "Please provide a valid cron schedule.",
+            message: "请输入有效的Cron表达式。",
           },
         ]}
       >
@@ -124,12 +125,12 @@ export const ScheduleFormItem = ({
         rules={[
           {
             required: true,
-            message: "Please input an interval in days",
+            message: "请输入间隔天数",
           },
         ]}
       >
         <InputNumber
-          addonBefore={<div style={{ width: "10em" }}>Interval in Days</div>}
+          addonBefore={<div style={{ width: "10em" }}>间隔天数</div>}
           type="number"
           min={1}
         />
@@ -144,12 +145,12 @@ export const ScheduleFormItem = ({
         rules={[
           {
             required: true,
-            message: "Please input an interval in hours",
+            message: "请输入间隔小时数",
           },
         ]}
       >
         <InputNumber
-          addonBefore={<div style={{ width: "10em" }}>Interval in Hours</div>}
+          addonBefore={<div style={{ width: "10em" }}>间隔小时数</div>}
           type="number"
           min={1}
         />
@@ -197,40 +198,38 @@ export const ScheduleFormItem = ({
           }}
         >
           <Radio.Button value={"disabled"}>
-            <Tooltip title="Schedule is disabled, will never run.">
-              Disabled
+            <Tooltip title="计划已禁用，将永远不会运行。">
+              禁用
             </Tooltip>
           </Radio.Button>
           <Radio.Button value={"maxFrequencyHours"}>
-            <Tooltip title="Schedule will run at the specified interval in hours.">
-              Interval Hours
+            <Tooltip title="计划将按照指定的小时间隔运行。">
+              小时间隔
             </Tooltip>
           </Radio.Button>
           <Radio.Button value={"maxFrequencyDays"}>
-            <Tooltip title="Schedule will run at the specified interval in days.">
-              Interval Days
+            <Tooltip title="计划将按照指定的天数间隔运行。">
+              天数间隔
             </Tooltip>
           </Radio.Button>
           <Radio.Button value={"cron"}>
-            <Tooltip title="Schedule will run based on a cron schedule.">
-              Cron
+            <Tooltip title="计划将根据Cron表达式运行。">
+              Cron表达式
             </Tooltip>
           </Radio.Button>
         </Radio.Group>
         <Typography.Text style={{ marginLeft: "1em", marginRight: "1em" }}>
-          Clock for schedule:{" "}
+          计划时钟：
         </Typography.Text>
         <Tooltip
           title={
             <>
-              Clock provides the time that the schedule is evaluated relative
-              to.
+              时钟提供计划评估的参考时间：
               <ul>
-                <li>Local - current time in the local timezone.</li>
-                <li>UTC - current time in the UTC timezone.</li>
+                <li>本地 - 当前本地时区的时间。</li>
+                <li>UTC - 当前协调世界时。</li>
                 <li>
-                  Last Run Time - relative to the last time the task ran. Good
-                  for devices that aren't always powered on e.g. laptops.
+                  上次运行时间 - 相对于任务上次运行的时间。适合不总是开机的设备（如笔记本电脑）。
                 </li>
               </ul>
             </>
@@ -241,15 +240,17 @@ export const ScheduleFormItem = ({
               <Radio.Button
                 value={clockEnumValueToString(Schedule_Clock.LOCAL)}
               >
-                Local
+                本地
               </Radio.Button>
-              <Radio.Button value={clockEnumValueToString(Schedule_Clock.UTC)}>
+              <Radio.Button
+                value={clockEnumValueToString(Schedule_Clock.UTC)}
+              >
                 UTC
               </Radio.Button>
               <Radio.Button
                 value={clockEnumValueToString(Schedule_Clock.LAST_RUN_TIME)}
               >
-                Last Run Time
+                上次运行时间
               </Radio.Button>
             </Radio.Group>
           </Form.Item>

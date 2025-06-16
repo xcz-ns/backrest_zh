@@ -12,8 +12,8 @@ import { OplogState, syncStateFromRequest } from "../state/logstate";
 import { shouldHideStatus } from "../state/oplog";
 import { toJsonString } from "@bufbuild/protobuf";
 
-// OperationList displays a list of operations that are either fetched based on 'req' or passed in via 'useBackups'.
-// If showPlan is provided the planId will be displayed next to each operation in the operation list.
+// OperationList 显示根据 'req' 获取或通过 'useBackups' 传入的操作列表。
+// 如果提供了 showPlan，计划ID将显示在操作列表的每个操作旁边。
 export const OperationListView = ({
   req,
   useOperations,
@@ -23,11 +23,11 @@ export const OperationListView = ({
   showDelete,
 }: React.PropsWithoutRef<{
   req?: GetOperationsRequest;
-  useOperations?: Operation[]; // exact set of operations to display; no filtering will be applied.
+  useOperations?: Operation[]; // 要显示的确切操作集；不会应用过滤
   showPlan?: boolean;
   displayHooksInline?: boolean;
   filter?: (op: Operation) => boolean;
-  showDelete?: boolean; // allows deleting individual operation rows, useful for the list view in the plan / repo panels.
+  showDelete?: boolean; // 允许删除单个操作行，适用于计划/仓库面板中的列表视图
 }>) => {
   const alertApi = useAlertApi();
 
@@ -44,14 +44,14 @@ export const OperationListView = ({
       });
 
       return syncStateFromRequest(logState, req, (e) => {
-        alertApi!.error("Failed to fetch operations: " + e.message);
+        alertApi!.error("无法获取操作: " + e.message);
       });
     }, [toJsonString(GetOperationsRequestSchema, req)]);
   }
   if (!operations) {
     return (
       <Empty
-        description="No operations yet."
+        description="暂无操作记录"
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       ></Empty>
     );

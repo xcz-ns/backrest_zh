@@ -7,7 +7,7 @@ const ModalContext = createContext<{
 }>({
   model: null,
   setModel: () => {
-    throw new Error("add a ModelContextProvider to your hierarchy");
+    throw new Error("请在组件层级中添加 ModalContextProvider");
   },
 });
 

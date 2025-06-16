@@ -61,7 +61,6 @@ export const OperationRow = ({
   const showModal = useShowModal();
   const displayType = getTypeForDisplay(operation);
   const setRefresh = useState(0)[1];
-
   useEffect(() => {
     if (operation.status === OperationStatus.STATUS_INPROGRESS) {
       const interval = setInterval(() => {
@@ -81,18 +80,18 @@ export const OperationRow = ({
           onlyFailed: false,
         })
       );
-      alertApi?.success("Deleted operation");
+      alertApi?.success("已删除操作");
     } catch (e: any) {
-      alertApi?.error("Failed to delete operation: " + e.message);
+      alertApi?.error("删除操作失败: " + e.message);
     }
   };
 
   const doCancel = async () => {
     try {
       await backrestService.cancel({ value: operation.id! });
-      alertApi?.success("Requested to cancel operation");
+      alertApi?.success("已请求取消操作");
     } catch (e: any) {
-      alertApi?.error("Failed to cancel operation: " + e.message);
+      alertApi?.error("取消操作失败: " + e.message);
     }
   };
 
@@ -101,9 +100,9 @@ export const OperationRow = ({
       <Modal
         width="70%"
         title={
-          "Logs for operation " +
+          "操作 " +
           opName +
-          " at " +
+          " 的日志，时间：" +
           formatTime(Number(operation.unixTimeStartMs))
         }
         open={true}
@@ -123,14 +122,13 @@ export const OperationRow = ({
   }
   if (operation.unixTimeEndMs - operation.unixTimeStartMs > 100) {
     details +=
-      " in " +
+      "，耗时 " +
       formatDuration(
         Number(operation.unixTimeEndMs - operation.unixTimeStartMs)
       );
   }
 
   const opName = displayTypeToString(getTypeForDisplay(operation));
-
   const title: React.ReactNode[] = [
     <div key="title">
       {showPlan
@@ -150,7 +148,7 @@ export const OperationRow = ({
         className="backrest operation-details"
         onClick={doShowLogs}
       >
-        [View Logs]
+        [查看日志]
       </Button>
     );
   }
@@ -165,10 +163,10 @@ export const OperationRow = ({
         type="link"
         size="small"
         className="backrest operation-details"
-        confirmTitle="[Confirm Cancel?]"
+        confirmTitle="[确认取消？]"
         onClickAsync={doCancel}
       >
-        [Cancel Operation]
+        [取消操作]
       </ConfirmButton>
     );
   } else if (showDelete) {
@@ -178,16 +176,15 @@ export const OperationRow = ({
         type="link"
         size="small"
         className="backrest operation-details hidden-child"
-        confirmTitle="[Confirm Delete?]"
+        confirmTitle="[确认删除？]"
         onClickAsync={doDelete}
       >
-        [Delete]
+        [删除]
       </ConfirmButton>
     );
   }
 
   let displayMessage = operation.displayMessage;
-
   const bodyItems: ItemType[] = [];
   const expandedBodyItems: string[] = [];
 
@@ -198,17 +195,16 @@ export const OperationRow = ({
     const backupOp = operation.op.value;
     bodyItems.push({
       key: "details",
-      label: "Backup Details",
+      label: "备份详情",
       children: <BackupOperationStatus status={backupOp.lastStatus} />,
     });
-
     if (backupOp.errors.length > 0) {
       bodyItems.push({
         key: "errors",
-        label: "Item Errors",
+        label: "项目错误",
         children: (
           <pre>
-            {backupOp.errors.map((e) => "Error on item: " + e.item).join("\n")}
+            {backupOp.errors.map((e) => "项目错误：" + e.item).join("\n")}
           </pre>
         ),
       });
@@ -218,12 +214,12 @@ export const OperationRow = ({
     const snapshotOp = operation.op.value;
     bodyItems.push({
       key: "details",
-      label: "Details",
+      label: "详情",
       children: <SnapshotDetails snapshot={snapshotOp.snapshot!} />,
     });
     bodyItems.push({
       key: "browser",
-      label: "Snapshot Browser",
+      label: "快照浏览器",
       children: (
         <SnapshotBrowser
           snapshotId={snapshotOp.snapshot!.id}
@@ -236,7 +232,7 @@ export const OperationRow = ({
     const forgetOp = operation.op.value;
     bodyItems.push({
       key: "forgot",
-      label: "Removed " + forgetOp.forget?.length + " Snapshots",
+      label: "已移除 " + forgetOp.forget?.length + " 个快照",
       children: <ForgetOperationDetails forgetOp={forgetOp} />,
     });
   } else if (operation.op.case === "operationPrune") {
@@ -244,7 +240,7 @@ export const OperationRow = ({
     expandedBodyItems.push("prune");
     bodyItems.push({
       key: "prune",
-      label: "Prune Output",
+      label: "清理输出",
       children: prune.outputLogref ? (
         <LogView logref={prune.outputLogref} />
       ) : (
@@ -256,7 +252,7 @@ export const OperationRow = ({
     expandedBodyItems.push("check");
     bodyItems.push({
       key: "check",
-      label: "Check Output",
+      label: "检查输出",
       children: check.outputLogref ? (
         <LogView logref={check.outputLogref} />
       ) : (
@@ -271,7 +267,7 @@ export const OperationRow = ({
     bodyItems.push({
       key: "run",
       label:
-        "Command Output" +
+        "命令输出" +
         (run.outputSizeBytes > 0
           ? ` (${formatBytes(Number(run.outputSizeBytes))})`
           : ""),
@@ -285,7 +281,7 @@ export const OperationRow = ({
     expandedBodyItems.push("restore");
     bodyItems.push({
       key: "restore",
-      label: "Restore Details",
+      label: "还原详情",
       children: <RestoreOperationStatus operation={operation} />,
     });
   } else if (operation.op.case === "operationRunHook") {
@@ -296,7 +292,7 @@ export const OperationRow = ({
       }
       bodyItems.push({
         key: "logref",
-        label: "Hook Output",
+        label: "钩子输出",
         children: <LogView logref={operation.logref} />,
       });
     }
@@ -305,7 +301,7 @@ export const OperationRow = ({
   if (hookOperations) {
     bodyItems.push({
       key: "hookOperations",
-      label: "Hooks Triggered",
+      label: "触发的钩子",
       children: (
         <OperationListView
           useOperations={hookOperations}
@@ -313,7 +309,6 @@ export const OperationRow = ({
         />
       ),
     });
-
     for (const op of hookOperations) {
       if (op.status !== OperationStatus.STATUS_SUCCESS) {
         expandedBodyItems.push("hookOperations");
@@ -338,7 +333,7 @@ export const OperationRow = ({
                 <div key="message">
                   <pre>
                     {operation.status !== OperationStatus.STATUS_SUCCESS &&
-                      nameForStatus(operation.status) + ": "}
+                      nameForStatus(operation.status) + "："}
                     {displayMessage}
                   </pre>
                 </div>
@@ -359,16 +354,15 @@ export const OperationRow = ({
 
 const SnapshotDetails = ({ snapshot }: { snapshot: ResticSnapshot }) => {
   const summary: Partial<SnapshotSummary> = snapshot.summary || {};
-
   const rows: React.ReactNode[] = [
     <Row gutter={16} key={1}>
       <Col span={8}>
-        <Typography.Text strong>User and Host</Typography.Text>
+        <Typography.Text strong>用户和主机</Typography.Text>
         <br />
         {snapshot.username}@{snapshot.hostname}
       </Col>
       <Col span={12}>
-        <Typography.Text strong>Tags</Typography.Text>
+        <Typography.Text strong>标签</Typography.Text>
         <br />
         {snapshot.tags.join(", ")}
       </Col>
@@ -386,17 +380,17 @@ const SnapshotDetails = ({ snapshot }: { snapshot: ResticSnapshot }) => {
     rows.push(
       <Row gutter={16} key={2}>
         <Col span={8}>
-          <Typography.Text strong>Files Added</Typography.Text>
+          <Typography.Text strong>新增文件</Typography.Text>
           <br />
           {"" + summary.filesNew}
         </Col>
         <Col span={8}>
-          <Typography.Text strong>Files Changed</Typography.Text>
+          <Typography.Text strong>已更改文件</Typography.Text>
           <br />
           {"" + summary.filesChanged}
         </Col>
         <Col span={8}>
-          <Typography.Text strong>Files Unmodified</Typography.Text>
+          <Typography.Text strong>未修改文件</Typography.Text>
           <br />
           {"" + summary.filesUnmodified}
         </Col>
@@ -405,17 +399,17 @@ const SnapshotDetails = ({ snapshot }: { snapshot: ResticSnapshot }) => {
     rows.push(
       <Row gutter={16} key={3}>
         <Col span={8}>
-          <Typography.Text strong>Bytes Added</Typography.Text>
+          <Typography.Text strong>新增字节</Typography.Text>
           <br />
           {formatBytes(Number(summary.dataAdded))}
         </Col>
         <Col span={8}>
-          <Typography.Text strong>Bytes Processed</Typography.Text>
+          <Typography.Text strong>处理总字节数</Typography.Text>
           <br />
           {formatBytes(Number(summary.totalBytesProcessed))}
         </Col>
         <Col span={8}>
-          <Typography.Text strong>Files Processed</Typography.Text>
+          <Typography.Text strong>处理总文件数</Typography.Text>
           <br />
           {"" + summary.totalFilesProcessed}
         </Col>
@@ -426,7 +420,7 @@ const SnapshotDetails = ({ snapshot }: { snapshot: ResticSnapshot }) => {
   return (
     <>
       <Typography.Text>
-        <Typography.Text strong>Snapshot ID: </Typography.Text>
+        <Typography.Text strong>快照ID： </Typography.Text>
         {normalizeSnapshotId(snapshot.id!)} <br />
         {rows}
       </Typography.Text>
@@ -443,7 +437,7 @@ const RestoreOperationStatus = ({ operation }: { operation: Operation }) => {
 
   return (
     <>
-      Restore {restoreOp.path} to {restoreOp.target}
+      还原 {restoreOp.path} 到 {restoreOp.target}
       {!isDone ? (
         <Progress percent={Math.round(progress * 1000) / 10} status="active" />
       ) : null}
@@ -458,26 +452,26 @@ const RestoreOperationStatus = ({ operation }: { operation: Operation }) => {
                   window.open(resp.value, "_blank");
                 })
                 .catch((e) => {
-                  alertApi?.error("Failed to fetch download URL: " + e.message);
+                  alertApi?.error("获取下载链接失败: " + e.message);
                 });
             }}
           >
-            Download File(s)
+            下载文件
           </Button>
         </>
       ) : null}
       <br />
-      Restored Snapshot ID: {normalizeSnapshotId(operation.snapshotId!)}
+      已还原快照ID：{normalizeSnapshotId(operation.snapshotId!)}
       {lastStatus && (
         <Row gutter={16}>
           <Col span={12}>
-            <Typography.Text strong>Bytes Done/Total</Typography.Text>
+            <Typography.Text strong>已还原/总计字节数</Typography.Text>
             <br />
             {formatBytes(Number(lastStatus.bytesRestored))}/
             {formatBytes(Number(lastStatus.totalBytes))}
           </Col>
           <Col span={12}>
-            <Typography.Text strong>Files Done/Total</Typography.Text>
+            <Typography.Text strong>已还原/总计文件数</Typography.Text>
             <br />
             {Number(lastStatus.filesRestored)}/{Number(lastStatus.totalFiles)}
           </Col>
@@ -493,9 +487,8 @@ const BackupOperationStatus = ({
   status?: BackupProgressEntry;
 }) => {
   if (!status) {
-    return <>No status yet.</>;
+    return <>暂无状态信息</>;
   }
-
   if (status.entry.case === "status") {
     const st = status.entry.value;
     const progress =
@@ -508,19 +501,19 @@ const BackupOperationStatus = ({
         <br />
         <Row gutter={16}>
           <Col span={12}>
-            <Typography.Text strong>Bytes Done/Total</Typography.Text>
+            <Typography.Text strong>已处理/总计字节数</Typography.Text>
             <br />
             {formatBytes(Number(st.bytesDone))}/
             {formatBytes(Number(st.totalBytes))}
           </Col>
           <Col span={12}>
-            <Typography.Text strong>Files Done/Total</Typography.Text>
+            <Typography.Text strong>已处理/总计文件数</Typography.Text>
             <br />
             {Number(st.filesDone)}/{Number(st.totalFiles)}
           </Col>
         </Row>
         {st.currentFile && st.currentFile.length > 0 ? (
-          <pre>Current file: {st.currentFile.join("\n")}</pre>
+          <pre>当前文件：{st.currentFile.join("\n")}</pre>
         ) : null}
       </>
     );
@@ -529,41 +522,41 @@ const BackupOperationStatus = ({
     return (
       <>
         <Typography.Text>
-          <Typography.Text strong>Snapshot ID: </Typography.Text>
+          <Typography.Text strong>快照ID： </Typography.Text>
           {sum.snapshotId !== ""
             ? normalizeSnapshotId(sum.snapshotId!)
-            : "No Snapshot Created"}
+            : "未创建快照"}
         </Typography.Text>
         <Row gutter={16}>
           <Col span={8}>
-            <Typography.Text strong>Files Added</Typography.Text>
+            <Typography.Text strong>新增文件</Typography.Text>
             <br />
             {sum.filesNew.toString()}
           </Col>
           <Col span={8}>
-            <Typography.Text strong>Files Changed</Typography.Text>
+            <Typography.Text strong>已更改文件</Typography.Text>
             <br />
             {sum.filesChanged.toString()}
           </Col>
           <Col span={8}>
-            <Typography.Text strong>Files Unmodified</Typography.Text>
+            <Typography.Text strong>未修改文件</Typography.Text>
             <br />
             {sum.filesUnmodified.toString()}
           </Col>
         </Row>
         <Row gutter={16}>
           <Col span={8}>
-            <Typography.Text strong>Bytes Added</Typography.Text>
+            <Typography.Text strong>新增字节数</Typography.Text>
             <br />
             {formatBytes(Number(sum.dataAdded))}
           </Col>
           <Col span={8}>
-            <Typography.Text strong>Total Bytes Processed</Typography.Text>
+            <Typography.Text strong>处理总字节数</Typography.Text>
             <br />
             {formatBytes(Number(sum.totalBytesProcessed))}
           </Col>
           <Col span={8}>
-            <Typography.Text strong>Total Files Processed</Typography.Text>
+            <Typography.Text strong>处理总文件数</Typography.Text>
             <br />
             {sum.totalFilesProcessed.toString()}
           </Col>
@@ -572,7 +565,7 @@ const BackupOperationStatus = ({
     );
   } else {
     console.error("GOT UNEXPECTED STATUS: ", status);
-    return <>No fields set. This shouldn't happen</>;
+    return <>未设置字段，这不应该发生</>;
   }
 };
 
@@ -585,47 +578,47 @@ const ForgetOperationDetails = ({
   const policyDesc = [];
   if (policy.policy) {
     if (policy.policy.case === "policyKeepAll") {
-      policyDesc.push("Keep all.");
+      policyDesc.push("保留所有快照");
     } else if (policy.policy.case === "policyKeepLastN") {
-      policyDesc.push(`Keep last ${policy.policy.value} snapshots`);
+      policyDesc.push(`保留最近 ${policy.policy.value} 个快照`);
     } else if (policy.policy.case == "policyTimeBucketed") {
       const val = policy.policy.value;
       if (val.hourly) {
-        policyDesc.push(`Keep hourly for ${val.hourly} hours`);
+        policyDesc.push(`每小时保留 ${val.hourly} 小时`);
       }
       if (val.daily) {
-        policyDesc.push(`Keep daily for ${val.daily} days`);
+        policyDesc.push(`每天保留 ${val.daily} 天`);
       }
       if (val.weekly) {
-        policyDesc.push(`Keep weekly for ${val.weekly} weeks`);
+        policyDesc.push(`每周保留 ${val.weekly} 周`);
       }
       if (val.monthly) {
-        policyDesc.push(`Keep monthly for ${val.monthly} months`);
+        policyDesc.push(`每月保留 ${val.monthly} 个月`);
       }
       if (val.yearly) {
-        policyDesc.push(`Keep yearly for ${val.yearly} years`);
+        policyDesc.push(`每年保留 ${val.yearly} 年`);
       }
       if (val.keepLastN) {
-        policyDesc.push(`Keep latest ${val.keepLastN} snapshots regardless of age`);
+        policyDesc.push(`无论年龄保留最近 ${val.keepLastN} 个快照`);
       }
     }
   }
 
   return (
     <>
-      Removed snapshots:
+      已移除快照：
       <pre>
         {forgetOp.forget?.map((f) => (
           <div key={f.id}>
-            {"removed snapshot " +
+            {"移除快照 " +
               normalizeSnapshotId(f.id!) +
-              " taken at " +
+              "，创建时间：" +
               formatTime(Number(f.unixTimeMs))}{" "}
             <br />
           </div>
         ))}
       </pre>
-      Policy:
+      策略：
       <ul>
         {policyDesc.map((desc, idx) => (
           <li key={idx}>{desc}</li>
