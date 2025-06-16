@@ -9,7 +9,7 @@ import {
 import { useAlertApi } from "../components/Alerts";
 import { create } from "@bufbuild/protobuf";
 
-export const 登录模态框 = () => {
+export const LoginModal = () => {
   let 默认凭证 = create(LoginRequestSchema, {});
 
   const [表单] = Form.useForm();

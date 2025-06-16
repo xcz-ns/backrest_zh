@@ -66,7 +66,7 @@ const planDefaults = create(PlanSchema, {
   },
 });
 
-export const 添加计划模态框 = ({ template }: { template: Plan | null }) => {
+export const AddPlanModal = ({ template }: { template: Plan | null }) => {
   const [确认加载, 设置确认加载] = useState(false);
   const 显示模态框 = useShowModal();
   const 提示框服务 = useAlertApi()!;

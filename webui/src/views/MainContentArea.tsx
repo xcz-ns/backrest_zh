@@ -7,7 +7,7 @@ interface 面包屑导航 {
   点击事件?: () => void;
 }
 
-export const 主内容区域模板 = ({
+export const MainContentArea = ({
   面包屑路径,
   子元素,
 }: {

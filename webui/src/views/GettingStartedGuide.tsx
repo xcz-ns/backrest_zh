@@ -6,7 +6,7 @@ import { Config, ConfigSchema } from "../../gen/ts/v1/config_pb";
 import { isDevBuild } from "../state/buildcfg";
 import { toJsonString } from "@bufbuild/protobuf";
 
-export const 入门指南 = () => {
+export const GettingStartedGuide = () => {
   const config = useConfig()[0];
 
   return (
