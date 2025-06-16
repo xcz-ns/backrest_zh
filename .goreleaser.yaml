@@ -1,3 +1,5 @@
+@ -1,107 +1,89 @@
+# .goreleaser.yml
 version: 1
 
 env:
@@ -11,15 +13,29 @@ before:
     - sh -c "GOOS=windows BACKREST_BUILD_VERSION={{.Version}} go generate ./..."
 
 builds:
-  - id: backrest
+  - id: other
+    main: ./cmd/backrest
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - windows
+      - freebsd
+    goarch:
+      - amd64
+      - arm64
+    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+
+  - id: linux
     main: ./cmd/backrest
     env:
       - CGO_ENABLED=0
     goos:
       - linux
-      - windows
     goarch:
       - amd64
+      - arm64
+      - arm
     ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
 
   - id: backrestmon
@@ -27,23 +43,27 @@ builds:
     binary: backrest-windows-tray
     env:
       - CGO_ENABLED=1
+      - GO111MODULE=on
     ldflags: "-H=windowsgui"
     goos:
       - windows
     goarch:
       - amd64
+      - arm64
 
 archives:
   - format: tar.gz
-    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{- title .Os }}_{{- if eq .Arch \"amd64\" }}x86_64{{- else if eq .Arch \"386\" }}i386{{- else }}{{ .Arch }}{{ end }}{{- if .Arm }}v{{ .Arm }}{{ end }}"
     format_overrides:
       - goos: windows
         format: zip
-    allow_different_binary_count: true
     files:
+      - install.sh
+      - uninstall.sh
       - LICENSE
       - README.md
       - CHANGELOG.md
+    allow_different_binary_count: true
 
 dockers:
   - image_templates:
@@ -52,16 +72,10 @@ dockers:
     dockerfile: Dockerfile.alpine
     use: buildx
     goarch: amd64
-    goos: linux
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
     skip_push: false
-
-release:
-  github:
-    owner: xcz-ns
-    name: backrest
 
 changelog:
   sort: asc
@@ -69,3 +83,8 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+release:
+  github:
+    owner: xcz-ns
+    name: backrest
