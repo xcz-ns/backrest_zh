@@ -46,11 +46,13 @@ export const SummaryDashboard = () => {
   const alertApi = useAlertApi()!;
   const navigate = useNavigate();
 
-  const [summaryData, setSummaryData] = useState<SummaryDashboardResponse | null>();
+  const [summaryData, setSummaryData] =
+    useState<SummaryDashboardResponse | null>();
 
   useEffect(() => {
-    // 获取摘要数据
+    // 获取汇总数据
     const fetchData = async () => {
+      // 检查标签页是否处于前台
       if (document.hidden) {
         return;
       }
@@ -59,7 +61,7 @@ export const SummaryDashboard = () => {
         const data = await backrestService.getSummaryDashboard({});
         setSummaryData(data);
       } catch (e) {
-        alertApi.error("获取摘要数据失败: " + e);
+        alertApi.error("获取汇总数据失败: " + e);
       }
     };
 
@@ -86,24 +88,22 @@ export const SummaryDashboard = () => {
   return (
     <>
       <Flex gap={16} vertical>
-        <Typography.Title level={3}>存储库</Typography.Title>
-        {summaryData.repoSummaries.length > 0 ? (
+        <Typography.Title level={3}>代码仓库</Typography.Title>
+        {summaryData && summaryData.repoSummaries.length > 0 ? (
           summaryData.repoSummaries.map((summary) => (
             <SummaryPanel summary={summary} key={summary.id} />
           ))
         ) : (
-          <Empty description="未找到存储库" />
+          <Empty description="未找到任何代码仓库" />
         )}
-
         <Typography.Title level={3}>计划</Typography.Title>
-        {summaryData.planSummaries.length > 0 ? (
+        {summaryData && summaryData.planSummaries.length > 0 ? (
           summaryData.planSummaries.map((summary) => (
             <SummaryPanel summary={summary} key={summary.id} />
           ))
         ) : (
-          <Empty description="未找到计划" />
+          <Empty description="未找到任何计划" />
         )}
-
         <Divider />
         <Typography.Title level={3}>系统信息</Typography.Title>
         <Descriptions
@@ -122,12 +122,11 @@ export const SummaryDashboard = () => {
             },
           ]}
         />
-
         <Collapse
           size="small"
           items={[
             {
-              label: "配置 JSON 格式",
+              label: "配置内容（JSON格式）",
               children: (
                 <pre>
                   {config &&
@@ -192,11 +191,11 @@ const SummaryPanel = ({
         <br />
         {isPending ? (
           <Typography.Text type="secondary">
-            已安排，等待执行。
+            已排程，等待中。
           </Typography.Text>
         ) : (
           <Typography.Text type="secondary">
-            耗时 {formatDuration(entry.durationMs)}，新增数据量{" "}
+            用时 {formatDuration(entry.durationMs)}，新增数据量{" "}
             {formatBytes(entry.bytesAdded)}
           </Typography.Text>
         )}
@@ -204,27 +203,28 @@ const SummaryPanel = ({
     );
   };
 
-  const cardInfo: { key: number; label: string; children: React.ReactNode }[] = [];
+  const cardInfo: { key: number; label: string; children: React.ReactNode }[] =
+    [];
 
   cardInfo.push(
     {
       key: 1,
-      label: "最近 30 天备份次数",
+      label: "备份情况（30天）",
       children: (
         <>
           {summary.backupsSuccessLast30days ? (
             <Typography.Text type="success" style={{ marginRight: "5px" }}>
-              {summary.backupsSuccessLast30days} 次成功
+              {summary.backupsSuccessLast30days + ""} 成功
             </Typography.Text>
           ) : undefined}
           {summary.backupsFailed30days ? (
             <Typography.Text type="danger" style={{ marginRight: "5px" }}>
-              {summary.backupsFailed30days} 次失败
+              {summary.backupsFailed30days + ""} 失败
             </Typography.Text>
           ) : undefined}
           {summary.backupsWarningLast30days ? (
             <Typography.Text type="warning" style={{ marginRight: "5px" }}>
-              {summary.backupsWarningLast30days} 次警告
+              {summary.backupsWarningLast30days + ""} 警告
             </Typography.Text>
           ) : undefined}
         </>
@@ -232,17 +232,17 @@ const SummaryPanel = ({
     },
     {
       key: 2,
-      label: "扫描字节数（30天）",
+      label: "扫描数据量（30天）",
       children: formatBytes(Number(summary.bytesScannedLast30days)),
     },
     {
       key: 3,
-      label: "新增字节数（30天）",
+      label: "新增数据量（30天）",
       children: formatBytes(Number(summary.bytesAddedLast30days)),
     }
   );
 
-  // 判断是否是移动端布局
+  // 判断是否为移动端布局
   if (!isMobile()) {
     cardInfo.push(
       {
@@ -254,12 +254,12 @@ const SummaryPanel = ({
       },
       {
         key: 5,
-        label: "平均扫描字节数",
+        label: "平均扫描数据量",
         children: formatBytes(Number(summary.bytesScannedAvg)),
       },
       {
         key: 6,
-        label: "平均新增字节数",
+        label: "平均新增数据量",
         children: formatBytes(Number(summary.bytesAddedAvg)),
       }
     );
@@ -267,9 +267,13 @@ const SummaryPanel = ({
 
   return (
     <Card title={summary.id} style={{ width: "100%" }}>
-      <Row gutter={16}>
+      <Row gutter={16} key={1}>
         <Col span={10}>
-          <Descriptions layout="vertical" column={3} items={cardInfo} />
+          <Descriptions
+            layout="vertical"
+            column={3}
+            items={cardInfo}
+          ></Descriptions>
         </Col>
         <Col span={14}>
           <ResponsiveContainer width="100%" height={140}>

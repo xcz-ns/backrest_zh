@@ -23,7 +23,7 @@ import {
 import LogoSvg from "url:../../assets/logo.svg";
 import _ from "lodash";
 import { Code } from "@connectrpc/connect";
-import { LoginModal } from "./LoginModal";
+import { 登录模态框 } from "./LoginModal";
 import { backrestService, setAuthToken } from "../api";
 import { useConfig } from "../components/ConfigProvider";
 import { shouldShowSettings } from "../state/configutil";
@@ -31,91 +31,93 @@ import { OpSelector, OpSelectorSchema } from "../../gen/ts/v1/service_pb";
 import { colorForStatus } from "../state/flowdisplayaggregator";
 import { getStatusForSelector, matchSelector } from "../state/logstate";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
-import { MainContentAreaTemplate } from "./MainContentArea";
+import { 主内容区域模板 } from "./MainContentArea";
 import { create } from "@bufbuild/protobuf";
 
 const { Header, Sider } = Layout;
 
-const SummaryDashboard = React.lazy(() =>
+// 懒加载组件
+const 汇总仪表板 = React.lazy(() =>
   import("./SummaryDashboard").then((m) => ({
     default: m.SummaryDashboard,
   }))
 );
-const GettingStartedGuide = React.lazy(() =>
+const 入门指南 = React.lazy(() =>
   import("./GettingStartedGuide").then((m) => ({
     default: m.GettingStartedGuide,
   }))
 );
-const PlanView = React.lazy(() =>
+const 计划视图 = React.lazy(() =>
   import("./PlanView").then((m) => ({
     default: m.PlanView,
   }))
 );
-const RepoView = React.lazy(() =>
+const 仓库视图 = React.lazy(() =>
   import("./RepoView").then((m) => ({
     default: m.RepoView,
   }))
 );
 
-const RepoViewContainer = () => {
+// 仓库视图容器
+const 仓库视图容器 = () => {
   const { repoId } = useParams();
   const [config, setConfig] = useConfig();
-
+  
   if (!config) {
     return <Spin />;
   }
-
+  
   const repo = config.repos.find((r) => r.id === repoId);
-
   return (
-    <MainContentAreaTemplate
-      breadcrumbs={[{ title: "存储库" }, { title: repoId! }]}
+    <主内容区域模板
+      breadcrumbs={[{ title: "仓库" }, { title: repoId! }]}
       key={repoId}
     >
       {repo ? (
-        <RepoView repo={repo} />
+        <仓库视图 repo={repo} />
       ) : (
-        <Empty description={`找不到存储库 ${repoId}`} />
+        <Empty description={`仓库 ${repoId} 未找到`} />
       )}
-    </MainContentAreaTemplate>
+    </主内容区域模板>
   );
 };
 
-const PlanViewContainer = () => {
+// 计划视图容器
+const 计划视图容器 = () => {
   const { planId } = useParams();
   const [config, setConfig] = useConfig();
-
+  
   if (!config) {
     return <Spin />;
   }
-
+  
   const plan = config.plans.find((p) => p.id === planId);
-
   return (
-    <MainContentAreaTemplate
-      breadcrumbs={[{ title: "备份计划" }, { title: planId! }]}
+    <主内容区域模板
+      breadcrumbs={[{ title: "计划" }, { title: planId! }]}
       key={planId}
     >
       {plan ? (
-        <PlanView plan={plan} />
+        <计划视图 plan={plan} />
       ) : (
-        <Empty description={`找不到计划 ${planId}`} />
+        <Empty description={`计划 ${planId} 未找到`} />
       )}
-    </MainContentAreaTemplate>
+    </主内容区域模板>
   );
 };
 
-export const App: React.FC = () => {
+export const 应用: React.FC = () => {
   const {
     token: { colorBgContainer, colorTextLightSolid },
   } = theme.useToken();
-
+  
   const navigate = useNavigate();
   const [config, setConfig] = useConfig();
-  const items = getSidenavItems(config);
-
+  const items = 获取侧边导航菜单项(config);
+  
   return (
     <Layout style={{ height: "auto", minHeight: "100vh" }}>
+      {/* 顶部导航栏 */}
       <Header
         style={{
           display: "flex",
@@ -125,6 +127,7 @@ export const App: React.FC = () => {
           backgroundColor: "#1b232c",
         }}
       >
+        {/* LOGO 和标题 */}
         <a
           style={{ color: colorTextLightSolid }}
           onClick={() => {
@@ -141,7 +144,9 @@ export const App: React.FC = () => {
             }}
           />
         </a>
+        
         <h1>
+          {/* 版本号链接 */}
           <a href="https://github.com/garethgeorge/backrest"  target="_blank">
             <small
               style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.6em" }}
@@ -149,14 +154,20 @@ export const App: React.FC = () => {
               {uiBuildVersion}
             </small>
           </a>
+          
+          {/* 活动状态条 */}
           <small style={{ fontSize: "0.6em", marginLeft: "30px" }}>
             <ActivityBar />
           </small>
         </h1>
+        
+        {/* 右侧状态信息 */}
         <h1 style={{ position: "absolute", right: "20px" }}>
           <small style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.6em" }}>
             {config && config.instance ? config.instance : undefined}
           </small>
+          
+          {/* 登出按钮 */}
           <Button
             type="text"
             style={{
@@ -169,11 +180,14 @@ export const App: React.FC = () => {
               window.location.reload();
             }}
           >
-            退出登录
+            登出
           </Button>
         </h1>
       </Header>
+      
+      {/* 主体布局 */}
       <Layout>
+        {/* 侧边栏 */}
         <Sider width={300} style={{ background: colorBgContainer }}>
           <Menu
             mode="inline"
@@ -183,46 +197,58 @@ export const App: React.FC = () => {
             items={items}
           />
         </Sider>
-        <AuthenticationBoundary>
+        
+        {/* 路由容器 */}
+        <认证边界>
           <Suspense fallback={<Spin />}>
             <Routes>
+              {/* 主页 */}
               <Route
                 path="/"
                 element={
-                  <MainContentAreaTemplate breadcrumbs={[{ title: "概览" }]}>
-                    <SummaryDashboard />
-                  </MainContentAreaTemplate>
+                  <主内容区域模板 breadcrumbs={[{ title: "概览" }]}>
+                    <汇总仪表板 />
+                  </主内容区域模板>
                 }
               />
+              
+              {/* 入门指南 */}
               <Route
                 path="/getting-started"
                 element={
-                  <MainContentAreaTemplate
+                  <主内容区域模板
                     breadcrumbs={[{ title: "入门指南" }]}
                   >
-                    <GettingStartedGuide />
-                  </MainContentAreaTemplate>
+                    <入门指南 />
+                  </主内容区域模板>
                 }
               />
-              <Route path="/plan/:planId" element={<PlanViewContainer />} />
-              <Route path="/repo/:repoId" element={<RepoViewContainer />} />
+              
+              {/* 计划详情 */}
+              <Route path="/plan/:planId" element={<计划视图容器 />} />
+              
+              {/* 仓库详情 */}
+              <Route path="/repo/:repoId" element={<仓库视图容器 />} />
+              
+              {/* 404页面 */}
               <Route
                 path="/*"
                 element={
-                  <MainContentAreaTemplate breadcrumbs={[]}>
+                  <主内容区域模板 breadcrumbs={[]}>
                     <Empty description="页面未找到" />
-                  </MainContentAreaTemplate>
+                  </主内容区域模板>
                 }
               />
             </Routes>
           </Suspense>
-        </AuthenticationBoundary>
+        </认证边界>
       </Layout>
     </Layout>
   );
 };
 
-const AuthenticationBoundary = ({
+// 认证边界组件
+const 认证边界 = ({
   children,
 }: {
   children: React.ReactNode;
@@ -230,12 +256,13 @@ const AuthenticationBoundary = ({
   const [config, setConfig] = useConfig();
   const alertApi = useAlertApi()!;
   const showModal = useShowModal();
-
+  
   useEffect(() => {
     backrestService
       .getConfig({})
       .then((config) => {
         setConfig(config);
+        
         if (shouldShowSettings(config)) {
           import("./SettingsModal").then(({ SettingsModal }) => {
             showModal(<SettingsModal />);
@@ -246,8 +273,9 @@ const AuthenticationBoundary = ({
       })
       .catch((err) => {
         const code = err.code;
+        
         if (err.code === Code.Unauthenticated) {
-          showModal(<LoginModal />);
+          showModal(<登录模态框 />);
           return;
         } else if (
           err.code !== Code.Unavailable &&
@@ -256,37 +284,40 @@ const AuthenticationBoundary = ({
           alertApi.error(err.message, 0);
           return;
         }
+        
         alertApi.error(
-          "获取配置失败，通常意味着 UI 无法连接到后端服务",
+          "获取初始配置失败，通常这意味着UI无法连接到后端服务",
           0
         );
       });
   }, []);
-
+  
   if (!config) {
     return <></>;
   }
-
+  
   return <>{children}</>;
 };
 
-const getSidenavItems = (config: Config | null): MenuProps["items"] => {
+// 生成侧边栏菜单项
+const 获取侧边导航菜单项 = (config: Config | null): MenuProps["items"] => {
   const showModal = useShowModal();
   const navigate = useNavigate();
-
+  
   if (!config) {
     return;
   }
-
+  
   const reposById = _.keyBy(config.repos, (r) => r.id);
   const configPlans = config.plans || [];
   const configRepos = config.repos || [];
-
+  
+  // 计划菜单项
   const plans: MenuProps["items"] = [
     {
       key: "add-plan",
       icon: <PlusOutlined />,
-      label: "添加计划",
+      label: "新建计划",
       onClick: async () => {
         const { AddPlanModal } = await import("./AddPlanModal");
         showModal(<AddPlanModal template={null} />);
@@ -298,15 +329,16 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
         planId: plan.id,
         repoGuid: reposById[plan.repo]?.guid,
       });
+      
       return {
         key: "p-" + plan.id,
-        icon: <IconForResource selector={sel} />,
+        icon: <图标ForResource selector={sel} />,
         label: (
           <div
             className="backrest visible-on-hover"
             style={{ width: "100%", height: "100%" }}
           >
-            {plan.id}{" "}
+            {plan.id} 
             <Button
               className="hidden-child float-center-right"
               type="text"
@@ -327,12 +359,13 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
       };
     }),
   ];
-
+  
+  // 仓库菜单项
   const repos: MenuProps["items"] = [
     {
       key: "add-repo",
       icon: <PlusOutlined />,
-      label: "添加存储库",
+      label: "新建仓库",
       onClick: async () => {
         const { AddRepoModal } = await import("./AddRepoModal");
         showModal(<AddRepoModal template={null} />);
@@ -342,7 +375,7 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
       return {
         key: "r-" + repo.id,
         icon: (
-          <IconForResource
+          <图标ForResource
             selector={create(OpSelectorSchema, {
               instanceId: config.instance,
               repoGuid: repo.guid,
@@ -354,7 +387,7 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
             className="backrest visible-on-hover"
             style={{ width: "100%", height: "100%" }}
           >
-            {repo.id}{" "}
+            {repo.id} 
             <Button
               type="text"
               size="small"
@@ -375,18 +408,18 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
       };
     }),
   ];
-
+  
   return [
     {
       key: "plans",
       icon: React.createElement(ScheduleOutlined),
-      label: "备份计划",
+      label: "计划",
       children: plans,
     },
     {
       key: "repos",
       icon: React.createElement(DatabaseOutlined),
-      label: "存储库",
+      label: "仓库",
       children: repos,
     },
     {
@@ -401,19 +434,26 @@ const getSidenavItems = (config: Config | null): MenuProps["items"] => {
   ];
 };
 
-const IconForResource = ({ selector }: { selector: OpSelector }) => {
+// 状态图标组件
+const 图标ForResource = ({ selector }: { selector: OpSelector }) => {
   const [status, setStatus] = useState(OperationStatus.STATUS_UNKNOWN);
+  
   useEffect(() => {
     if (!selector || !selector.instanceId || !selector.repoGuid) {
       return;
     }
+    
     const load = async () => {
       setStatus(await getStatusForSelector(selector));
     };
+    
     load();
+    
     const refresh = _.debounce(load, 1000, { maxWait: 10000, trailing: true });
+    
     const callback = (event?: OperationEvent, err?: Error) => {
       if (!event || !event.event) return;
+      
       switch (event.event.case) {
         case "createdOperations":
         case "updatedOperations":
@@ -427,16 +467,21 @@ const IconForResource = ({ selector }: { selector: OpSelector }) => {
           break;
       }
     };
+    
     subscribeToOperations(callback);
+    
     return () => {
       unsubscribeFromOperations(callback);
     };
   }, [JSON.stringify(selector)]);
-  return iconForStatus(status);
+  
+  return 图标For状态(status);
 };
 
-const iconForStatus = (status: OperationStatus) => {
+// 状态图标映射
+const 图标For状态 = (status: OperationStatus) => {
   const color = colorForStatus(status);
+  
   switch (status) {
     case OperationStatus.STATUS_ERROR:
       return <ExclamationOutlined style={{ color }} />;

@@ -3,7 +3,7 @@ import { Repo } from "../../gen/ts/v1/config_pb";
 import { Flex, Tabs, Tooltip, Typography, Button } from "antd";
 import { OperationListView } from "../components/OperationListView";
 import { OperationTreeView } from "../components/OperationTreeView";
-import { MAX_OPERATION_HISTORY } from "../constants";
+import { MAX_OPERATION_HISTORY, STATS_OPERATION_HISTORY } from "../constants";
 import {
   DoRepoTaskRequest_Task,
   DoRepoTaskRequestSchema,
@@ -47,7 +47,7 @@ export const RepoView = ({ repo }: React.PropsWithChildren<{ repo: Repo }>) => {
           task: DoRepoTaskRequest_Task.UNLOCK,
         })
       );
-      alertsApi.success("仓库已解锁。");
+      alertsApi.success("仓库已解锁");
     } catch (e: any) {
       alertsApi.error("仓库解锁失败：" + e.message);
     }
@@ -88,22 +88,23 @@ export const RepoView = ({ repo }: React.PropsWithChildren<{ repo: Repo }>) => {
         })
       );
     } catch (e: any) {
-      alertsApi.error(formatErrorAlert(e, "校验失败："));
+      alertsApi.error(formatErrorAlert(e, "检查操作失败："));
     }
   };
 
-  // 安全检查当前仓库是否仍在配置中
+  // 检查仓库是否仍在配置中
   let repoInConfig = config?.repos?.find((r) => r.id === repo.id);
   if (!repoInConfig) {
     return (
       <>
-        该仓库已被删除
+        仓库已被删除
         <pre>{JSON.stringify(config, null, 2)}</pre>
       </>
     );
   }
   repo = repoInConfig;
 
+  // 选项卡配置
   const items = [
     {
       key: "1",
@@ -164,9 +165,9 @@ export const RepoView = ({ repo }: React.PropsWithChildren<{ repo: Repo }>) => {
       <Flex gap="small" align="center" wrap="wrap">
         <Typography.Title>{repo.id}</Typography.Title>
       </Flex>
-
       <Flex gap="small" align="center" wrap="wrap">
-        <Tooltip title="高级用户：打开 restic 命令行以运行仓库命令。执行命令后建议重新索引快照以同步 Backrest 数据">
+        {/* 高级操作按钮 */}
+        <Tooltip title="高级用户：打开restic命令行执行仓库操作。修改后需重新索引快照以在Backrest中生效">
           <Button
             type="default"
             onClick={async () => {
@@ -178,37 +179,36 @@ export const RepoView = ({ repo }: React.PropsWithChildren<{ repo: Repo }>) => {
           </Button>
         </Tooltip>
 
-        <Tooltip title="对仓库中的快照进行索引。每次备份完成后也会自动执行此操作">
+        <Tooltip title="索引仓库中的快照。每次备份后也会自动执行快照索引">
           <SpinButton type="default" onClickAsync={handleIndexNow}>
-            快照索引
+            索引快照
           </SpinButton>
         </Tooltip>
 
-        <Tooltip title="移除仓库锁文件，并检查仓库错误。仅在确认仓库未被其他系统使用时执行">
+        <Tooltip title="移除锁文件并检查仓库错误。请确保仓库未被其他系统访问时执行">
           <SpinButton type="default" onClickAsync={handleUnlockNow}>
             解锁仓库
           </SpinButton>
         </Tooltip>
 
-        <Tooltip title="对仓库执行清理操作，将删除旧快照并释放空间">
+        <Tooltip title="对仓库执行清理操作，移除旧快照并释放空间">
           <SpinButton type="default" onClickAsync={handlePruneNow}>
             立即清理
           </SpinButton>
         </Tooltip>
 
-        <Tooltip title="对仓库执行完整性校验">
+        <Tooltip title="验证仓库完整性">
           <SpinButton type="default" onClickAsync={handleCheckNow}>
-            立即校验
+            立即检查
           </SpinButton>
         </Tooltip>
 
-        <Tooltip title="对仓库运行 restic stats 统计，这可能是一个耗时操作">
+        <Tooltip title="对仓库执行统计计算（可能耗时较长）">
           <SpinButton type="default" onClickAsync={handleStatsNow}>
-            计算统计信息
+            计算统计
           </SpinButton>
         </Tooltip>
       </Flex>
-
       <Tabs defaultActiveKey={items[0].key} items={items} />
     </>
   );

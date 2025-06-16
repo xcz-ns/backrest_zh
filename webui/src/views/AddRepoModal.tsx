@@ -53,7 +53,7 @@ const repoDefaults = create(RepoSchema, {
     schedule: {
       schedule: {
         case: "cron",
-        value: "0 0 1 * *", // 每月 1 号
+        value: "0 0 1 * *", // 每月1日
       },
       clock: Schedule_Clock.LAST_RUN_TIME,
     },
@@ -62,7 +62,7 @@ const repoDefaults = create(RepoSchema, {
     schedule: {
       schedule: {
         case: "cron",
-        value: "0 0 1 * *", // 每月 1 号
+        value: "0 0 1 * *", // 每月1日
       },
       clock: Schedule_Clock.LAST_RUN_TIME,
     },
@@ -96,6 +96,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
   const handleDestroy = async () => {
     setConfirmLoading(true);
     try {
+      // 更新配置并提示成功
       setConfig(
         await backrestService.removeRepo(
           create(StringValueSchema, { value: template!.id })
@@ -103,9 +104,9 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
       );
       showModal(null);
       alertsApi.success(
-        "已从配置中删除存储库 " +
+        "已从配置中删除仓库 " +
           template!.id! +
-          "，但文件仍保留在磁盘上。如需释放空间，请手动删除文件。URI：" +
+          "，但文件保留。要释放存储空间，请手动删除文件。URI: " +
           template!.uri
       );
     } catch (e: any) {
@@ -122,22 +123,23 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
       const repo = fromJson(RepoSchema, repoFormData, {
         ignoreUnknownFields: false,
       });
-
       if (template !== null) {
+        // 更新仓库流程
         setConfig(await backrestService.addRepo(repo));
         showModal(null);
-        alertsApi.success("已更新存储库配置：" + repo.uri);
+        alertsApi.success("已更新仓库配置 " + repo.uri);
       } else {
+        // 创建新仓库流程
         setConfig(await backrestService.addRepo(repo));
         showModal(null);
-        alertsApi.success("已添加存储库：" + repo.uri);
+        alertsApi.success("已添加仓库 " + repo.uri);
       }
-
       try {
+        // 验证配置有效性
         await backrestService.listSnapshots({ repoId: repo.id });
       } catch (e: any) {
         alertsApi.error(
-          formatErrorAlert(e, "列出快照失败："),
+          formatErrorAlert(e, "获取快照失败："),
           10
         );
       }
@@ -157,14 +159,14 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
       <Modal
         open={true}
         onCancel={handleCancel}
-        title={template ? "编辑 Restic 存储库" : "添加 Restic 存储库"}
+        title={template ? "编辑Restic仓库" : "添加Restic仓库"}
         width="60vw"
         footer={[
           <Button loading={confirmLoading} key="back" onClick={handleCancel}>
             取消
           </Button>,
           template != null ? (
-            <Tooltip title="从配置中移除该存储库，但不会删除实际的 restic 存储库">
+            <Tooltip title="从配置中移除仓库但不会删除实际仓库文件">
               <ConfirmButton
                 key="delete"
                 type="primary"
@@ -187,21 +189,19 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                 const exists = await backrestService.checkRepoExists(repo);
                 if (exists.value) {
                   alertsApi.success(
-                    "成功连接到 " +
-                      repo.uri +
-                      "，发现一个现有存储库。",
+                    "连接成功，检测到已存在的仓库：" +
+                      repo.uri,
                     10
                   );
                 } else {
                   alertsApi.success(
-                    "成功连接到 " +
-                      repo.uri +
-                      "，未找到现有存储库，将初始化一个新的存储库。",
+                    "连接成功，未检测到现有仓库，将初始化新仓库：" +
+                      repo.uri,
                     10
                   );
                 }
               } catch (e: any) {
-                alertsApi.error(formatErrorAlert(e, "测试失败："), 10);
+                alertsApi.error(formatErrorAlert(e, "检查错误："), 10);
               }
             }}
           >
@@ -219,18 +219,18 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
         maskClosable={false}
       >
         <p>
-          如何配置存储库请参阅{" "}
+          请参考{" "}
           <a
             href="https://garethgeorge.github.io/backrest/introduction/getting-started" 
             target="_blank"
           >
-            Backrest 入门指南
+            Backrest入门指南
           </a>{" "}
-          或查看{" "}
+          获取仓库配置说明，或查阅{" "}
           <a href="https://restic.readthedocs.io/"  target="_blank">
-            restic 官方文档
+            restic文档
           </a>{" "}
-          获取更多详情。
+          了解仓库详细信息。
         </p>
         <br />
         <Form
@@ -240,35 +240,33 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
           wrapperCol={{ span: 18 }}
           disabled={confirmLoading}
         >
-          {/* Repo.id */}
+          {/* 仓库ID */}
           <Tooltip
-            title={
-              "用于标识此存储库在 Backrest 中的唯一 ID（例如 s3-mybucket）。创建后无法更改。"
-            }
+            title="用于标识此仓库的唯一ID（例如s3-mybucket）。创建后不可修改"
           >
             <Form.Item<Repo>
               hasFeedback
               name="id"
-              label="存储库名称"
+              label="仓库名称"
               validateTrigger={["onChange", "onBlur"]}
               rules={[
                 {
                   required: true,
-                  message: "请输入存储库名称",
+                  message: "请输入仓库名称",
                 },
                 {
                   validator: async (_, value) => {
                     if (template) return;
                     if (config?.repos?.find((r) => r.id === value)) {
-                      throw new Error("已存在相同名称的存储库");
+                      throw new Error();
                     }
                   },
-                  message: "已存在相同名称的存储库",
+                  message: "该仓库名称已存在",
                 },
                 {
                   pattern: namePattern,
                   message:
-                    "名称必须为字母数字组合，允许使用横线或下划线作为分隔符",
+                    "名称必须为字母数字，允许使用短横线或下划线作为分隔符",
                 },
               ]}
             >
@@ -278,27 +276,29 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
               />
             </Form.Item>
           </Tooltip>
+
           <Form.Item<Repo> name="guid" hidden>
             <Input />
           </Form.Item>
 
-          {/* Repo.uri */}
+          {/* 仓库URI */}
           <Tooltip
             title={
               <>
-                支持的存储库格式：
+                支持的仓库类型：
                 <ul>
-                  <li>本地路径</li>
-                  <li>S3 示例：s3://...</li>
-                  <li>SFTP 示例：sftp:user@host:/repo-path</li>
+                  <li>本地文件路径</li>
+                  <li>S3 例如 s3:// ...</li>
+                  <li>SFTP 例如 sftp:user@host:/repo-path</li>
                   <li>
-                    更多信息请参考{" "}
+                    请查阅{" "}
                     <a
                       href="https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html#preparing-a-new-repository" 
                       target="_blank"
                     >
-                      restic 文档
-                    </a>
+                      restic文档
+                    </a>{" "}
+                    了解更多
                   </li>
                 </ul>
               </>
@@ -307,12 +307,12 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             <Form.Item<Repo>
               hasFeedback
               name="uri"
-              label="存储库地址"
+              label="仓库URI"
               validateTrigger={["onChange", "onBlur"]}
               rules={[
                 {
                   required: true,
-                  message: "请输入存储库地址",
+                  message: "请输入仓库URI",
                 },
               ]}
             >
@@ -320,15 +320,15 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             </Form.Item>
           </Tooltip>
 
-          {/* Repo.password */}
+          {/* 仓库密码 */}
           <Tooltip
             title={
               <>
-                此密码将用于加密存储库中的数据。
+                用于加密仓库数据的密码：
                 <ul>
-                  <li>建议选择至少 128 位熵值的密码（如长度大于等于 20）</li>
-                  <li>也可以通过环境变量提供凭证，如 RESTIC_PASSWORD、RESTIC_PASSWORD_FILE、RESTIC_PASSWORD_COMMAND</li>
-                  <li>点击 [生成] 按钮可基于浏览器的随机数生成器生成一个安全密码。</li>
+                  <li>建议选择128位熵值（20个字符以上）</li>
+                  <li>可通过环境变量提供密码（RESTIC_PASSWORD等）</li>
+                  <li>点击[生成]按钮创建浏览器加密随机密码</li>
                 </ul>
               </>
             }
@@ -365,11 +365,9 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             </Form.Item>
           </Tooltip>
 
-          {/* Repo.env */}
+          {/* 环境变量 */}
           <Tooltip
-            title={
-              "传递给 restic 的环境变量（例如 S3 或 B2 凭证）。支持引用父进程的环境变量，如 FOO=${MY_FOO_VAR}"
-            }
+            title="传递给restic的环境变量（如S3/B2凭证），支持引用父进程变量 FOO=${MY_FOO_VAR}"
           >
             <Form.Item label="环境变量">
               <Form.List
@@ -394,8 +392,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                               required: true,
                               whitespace: true,
                               pattern: /^[\w-]+=.*$/,
-                              message:
-                                "环境变量必须为 KEY=VALUE 格式",
+                              message: "环境变量需符合 KEY=VALUE 格式",
                             },
                           ]}
                           noStyle
@@ -430,8 +427,8 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             </Form.Item>
           </Tooltip>
 
-          {/* Repo.flags */}
-          <Form.Item label="命令参数">
+          {/* 命令标志 */}
+          <Form.Item label="命令标志">
             <Form.List name="flags">
               {(fields, { add, remove }, { errors }) => (
                 <>
@@ -445,8 +442,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                             required: true,
                             whitespace: true,
                             pattern: /^\-\-?.*$/,
-                            message:
-                              "参数应为 CLI 参数格式，例如 --flag",
+                            message: "请输入CLI标志参数（参考restic --help）",
                           },
                         ]}
                         noStyle
@@ -467,7 +463,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                       style={{ width: "90%" }}
                       icon={<PlusOutlined />}
                     >
-                      添加参数
+                      设置标志
                     </Button>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
@@ -476,19 +472,20 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             </Form.List>
           </Form.Item>
 
-          {/* Repo.prunePolicy */}
+          {/* 清理策略 */}
           <Form.Item
             label={
               <Tooltip
                 title={
                   <span>
-                    设置运行 Prune 操作的时间计划。更多信息请参考{" "}
+                    仓库清理操作的时间安排。请查阅{" "}
                     <a
-                      href="https://restic.readthedocs.io/en/latest/060_forget.html#customize-pruning" 
+                      href="https://restic.readthedocs.io/en/stable/060_forget.html#customize-pruning" 
                       target="_blank"
                     >
-                      restic 关于 Prune 操作的文档
-                    </a>
+                      restic清理策略文档
+                    </a>{" "}
+                    了解更多
                   </span>
                 }
               >
@@ -503,8 +500,8 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             >
               <InputPercent
                 addonBefore={
-                  <Tooltip title="Prune 后，仓库中最多保留的未使用空间百分比。数值高可以减少复制开销，但会占用更多存储空间">
-                    <div style={{ width: "12" }}>最大未使用空间比例</div>
+                  <Tooltip title="清理后仓库允许的最大未使用百分比。高值减少复制操作但占用更多存储空间">
+                    <div style={{ width: "12" }}>清理后最大未使用</div>
                   </Tooltip>
                 }
               />
@@ -515,18 +512,18 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             />
           </Form.Item>
 
-          {/* Repo.checkPolicy */}
+          {/* 检查策略 */}
           <Form.Item
             label={
               <Tooltip
                 title={
                   <span>
-                    设置运行 Check 操作的时间计划。Restic Check 会验证你的备份数据完整性。
-                    可选地，你还可以配置为重新读取并哈希数据，这会消耗较多带宽，但能检测存储介质上的位腐烂或静默损坏。
+                    仓库检查操作的时间安排。Restic检查操作通过扫描磁盘结构验证备份数据完整性。
+                    可选配置重新读取和哈希校验数据（耗时且占用带宽，但能检测存储介质的位错误）
                   </span>
                 }
               >
-                校验策略
+                检查策略
               </Tooltip>
             }
           >
@@ -537,8 +534,8 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             >
               <InputPercent
                 addonBefore={
-                  <Tooltip title="仓库中 pack 数据的读取百分比。数值越高越耗带宽（如 100% 表示每次校验都读取整个仓库）">
-                    <div style={{ width: "12" }}>读取数据百分比</div>
+                  <Tooltip title="每次检查时读取并验证的仓库数据百分比。100%表示每次完整检查">
+                    <div style={{ width: "12" }}>数据读取比例</div>
                   </Tooltip>
                 }
               />
@@ -549,16 +546,12 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             />
           </Form.Item>
 
-          {/* Repo.commandPrefix */}
+          {/* 命令修饰符 */}
           {!isWindows && (
             <Form.Item
               label={
                 <Tooltip
-                  title={
-                    <span>
-                      备份操作的附加参数，比如设置 CPU 或 IO 优先级。
-                    </span>
-                  }
+                  title="备份操作的修饰符，例如设置CPU或IO优先级"
                 >
                   命令修饰符
                 </Tooltip>
@@ -570,22 +563,16 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                   <Tooltip
                     title={
                       <>
-                        支持的 IO 优先级模式：
+                        可用IO优先级模式：
                         <ul>
-                          <li>
-                            IO_BEST_EFFORT_LOW - 使用低于默认的磁盘优先级
-                          </li>
-                          <li>
-                            IO_BEST_EFFORT_HIGH - 使用高于默认的磁盘优先级
-                          </li>
-                          <li>
-                            IO_IDLE - 只在磁盘空闲时运行（无其他任务排队）
-                          </li>
+                          <li>IO_BEST_EFFORT_LOW - 低优先级（优先其他进程）</li>
+                          <li>IO_BEST_EFFORT_HIGH - 高优先级（磁盘队列首位）</li>
+                          <li>IO_IDLE - 仅在磁盘空闲时运行</li>
                         </ul>
                       </>
                     }
                   >
-                    IO 优先级：
+                    IO优先级：
                     <br />
                     <Form.Item
                       name={["commandPrefix", "ioNice"]}
@@ -594,7 +581,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                       <Select
                         allowClear
                         style={{ width: "100%" }}
-                        placeholder="选择 IO 优先级"
+                        placeholder="选择IO优先级"
                         options={CommandPrefix_IONiceLevelSchema.values.map(
                           (v) => ({
                             label: v.name,
@@ -609,18 +596,16 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                   <Tooltip
                     title={
                       <>
-                        支持的 CPU 优先级模式：
+                        可用CPU优先级模式：
                         <ul>
-                          <li>CPU_DEFAULT - 不改变优先级</li>
-                          <li>
-                            CPU_HIGH - 高于默认优先级（需要以 root 权限运行）
-                          </li>
-                          <li>CPU_LOW - 低于默认优先级</li>
+                          <li>CPU_DEFAULT - 默认优先级</li>
+                          <li>CPU_HIGH - 高优先级（需要root权限）</li>
+                          <li>CPU_LOW - 低优先级</li>
                         </ul>
                       </>
                     }
                   >
-                    CPU 优先级：
+                    CPU优先级：
                     <br />
                     <Form.Item
                       name={["commandPrefix", "cpuNice"]}
@@ -629,7 +614,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                       <Select
                         allowClear
                         style={{ width: "100%" }}
-                        placeholder="选择 CPU 优先级"
+                        placeholder="选择CPU优先级"
                         options={CommandPrefix_CPUNiceLevelSchema.values.map(
                           (v) => ({
                             label: v.name,
@@ -644,9 +629,12 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             </Form.Item>
           )}
 
+          {/* 自动解锁 */}
           <Form.Item
             label={
-              <Tooltip title="自动解锁会在 forget 和 prune 操作开始时自动移除锁文件。如果多个客户端共享同一个仓库，此功能不安全，默认关闭。">
+              <Tooltip
+                title="自动解锁会在清理操作开始时移除锁文件。若仓库被多个客户端共享使用，此操作可能不安全。默认禁用"
+              >
                 自动解锁
               </Tooltip>
             }
@@ -656,12 +644,14 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
             <Checkbox />
           </Form.Item>
 
+          {/* 钩子配置 */}
           <Form.Item
             label={<Tooltip title={hooksListTooltipText}>钩子</Tooltip>}
           >
             <HooksFormList />
           </Form.Item>
 
+          {/* JSON预览 */}
           <Form.Item shouldUpdate label="预览">
             {() => (
               <Collapse
@@ -669,7 +659,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
                 items={[
                   {
                     key: "1",
-                    label: "存储库配置 JSON 格式",
+                    label: "仓库配置JSON",
                     children: (
                       <Typography>
                         <pre>
@@ -688,6 +678,7 @@ export const AddRepoModal = ({ template }: { template: Repo | null }) => {
   );
 };
 
+// 环境变量验证规则
 const expectedEnvVars: { [scheme: string]: string[][] } = {
   s3: [
     ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"],
@@ -704,30 +695,20 @@ const expectedEnvVars: { [scheme: string]: string[][] } = {
   ],
 };
 
-const envVarSetValidator = (
-  form: FormInstance<any>,
-  envVars: string[]
-) => {
-  if (!envVars) {
-    return Promise.resolve();
-  }
+// 环境变量验证器
+const envVarSetValidator = (form: FormInstance<any>, envVars: string[]) => {
+  if (!envVars) return Promise.resolve();
 
   let uri = form.getFieldValue("uri");
-  if (!uri) {
-    return Promise.resolve();
-  }
+  if (!uri) return Promise.resolve();
 
   const envVarNames = envVars.map((e) => {
-    if (!e) {
-      return "";
-    }
+    if (!e) return "";
     let idx = e.indexOf("=");
-    if (idx === -1) {
-      return "";
-    }
-    return e.substring(0, idx);
+    return idx === -1 ? "" : e.substring(0, idx);
   });
 
+  // 检查密码是否提供
   const password = form.getFieldValue("password");
   if (
     (!password || password.length === 0) &&
@@ -737,44 +718,39 @@ const envVarSetValidator = (
   ) {
     return Promise.reject(
       new Error(
-        "缺少存储库密码。请提供密码，或设置下列任意一个环境变量：RESTIC_PASSWORD、RESTIC_PASSWORD_COMMAND、RESTIC_PASSWORD_FILE。"
+        "缺少仓库密码。请提供密码或设置以下环境变量之一：RESTIC_PASSWORD、RESTIC_PASSWORD_COMMAND、RESTIC_PASSWORD_FILE"
       )
     );
   }
 
+  // 检查特定协议的环境变量
   let schemeIdx = uri.indexOf(":");
-  if (schemeIdx === -1) {
-    return Promise.resolve();
-  }
-
+  if (schemeIdx === -1) return Promise.resolve();
   let scheme = uri.substring(0, schemeIdx);
+
   return checkSchemeEnvVars(scheme, envVarNames);
 };
 
+// 生成随机密码
 const cryptoRandomPassword = (): string => {
   let vals = crypto.getRandomValues(new Uint8Array(64));
   return btoa(String.fromCharCode(...vals)).slice(0, 48);
 };
 
+// 协议环境变量检查
 const checkSchemeEnvVars = (
   scheme: string,
   envVarNames: string[]
 ): Promise<void> => {
   let expected = expectedEnvVars[scheme];
-  if (!expected) {
-    return Promise.resolve();
-  }
+  if (!expected) return Promise.resolve();
 
   const missingVarsCollection: string[][] = [];
   for (let possibility of expected) {
     const missingVars = possibility.filter(
       (envVar) => !envVarNames.includes(envVar)
     );
-
-    if (missingVars.length === 0) {
-      return Promise.resolve();
-    }
-
+    if (missingVars.length === 0) return Promise.resolve();
     if (missingVars.length < possibility.length) {
       missingVarsCollection.push(missingVars);
     }
@@ -786,15 +762,15 @@ const checkSchemeEnvVars = (
 
   return Promise.reject(
     new Error(
-      "缺少必要的环境变量：" +
+      "缺少环境变量 " +
         formatMissingEnvVars(missingVarsCollection) +
-        "（适用于协议：" +
-        scheme +
-        "）"
+        " 用于协议 " +
+        scheme
     )
   );
 };
 
+// 格式化缺失变量提示
 const formatMissingEnvVars = (partialMatches: string[][]): string => {
   return partialMatches
     .map((x) => {
@@ -806,6 +782,7 @@ const formatMissingEnvVars = (partialMatches: string[][]): string => {
     .join(" 或 ");
 };
 
+// 百分比输入组件
 const InputPercent = ({ ...props }) => {
   return (
     <InputNumber

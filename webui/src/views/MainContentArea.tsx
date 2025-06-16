@@ -2,42 +2,38 @@ import { Breadcrumb, Layout, Spin, theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 import React from "react";
 
-// 面包屑导航项接口
-interface BreadcrumbItem {
-  title: string;
-  onClick?: () => void;
+interface 面包屑导航 {
+  标题: string;
+  点击事件?: () => void;
 }
 
-// 主内容区域模板组件
-export const MainContentAreaTemplate = ({
-  breadcrumbs,
-  children,
+export const 主内容区域模板 = ({
+  面包屑路径,
+  子元素,
 }: {
-  breadcrumbs: BreadcrumbItem[];
-  children: React.ReactNode;
+  面包屑路径: 面包屑导航[];
+  子元素: React.ReactNode;
 }) => {
   const {
-    token: { colorBgContainer },
+    token: { 颜色背景容器 },
   } = theme.useToken();
 
   return (
-    <Layout style={{ padding: "0 24px 24px" }}>
-      {/* 面包屑导航 */}
-      <Breadcrumb
+    <布局 style={{ padding: "0 24px 24px" }}>
+      <面包屑导航
         style={{ margin: "16px 0" }}
-        items={[...(breadcrumbs || [])]}
-      />
-      {/* 主内容区域 */}
-      <Content
+        items={[...(面包屑路径 || [])]}
+      ></面包屑导航>
+      <内容区域
         style={{
           padding: 24,
           margin: 0,
           minHeight: 280,
-          background: colorBgContainer,
+          background: 颜色背景容器,
         }}
       >
-        {children}
-      </Content>
-    </Layout>
+        {子元素}
+      </内容区域>
+    </布局>
   );
 };

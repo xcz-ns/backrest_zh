@@ -48,7 +48,7 @@ export const RunCommandModal = ({ repo }: { repo: Repo }) => {
         })
       );
     } catch (e: any) {
-      alertApi.error("命令执行失败：" + e.message);
+      alertApi.error("命令失败：" + e.message);
     } finally {
       setRunning(false);
     }
@@ -58,13 +58,13 @@ export const RunCommandModal = ({ repo }: { repo: Repo }) => {
     <Modal
       open={true}
       onCancel={handleCancel}
-      title={"在仓库 " + repo.id + " 中运行命令"}
+      title={`在仓库 ${repo.id} 中运行命令`}
       width="80vw"
       footer={[]}
     >
       <Space.Compact style={{ width: "100%" }}>
         <Input
-          placeholder="运行 restic 命令，例如输入 'help' 查看帮助"
+          placeholder="运行restic命令，例如输入'help'以获取帮助"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           onKeyUp={(e) => {
@@ -79,7 +79,7 @@ export const RunCommandModal = ({ repo }: { repo: Repo }) => {
       </Space.Compact>
       {running && command ? (
         <em style={{ color: "gray" }}>
-          警告：当前已有命令正在运行。请等待其完成后再运行需要仓库锁的其他操作。
+          警告：已有其他命令正在运行。请等待当前操作完成后再执行需要仓库锁的操作。
         </em>
       ) : null}
       <OperationListView
@@ -87,7 +87,7 @@ export const RunCommandModal = ({ repo }: { repo: Repo }) => {
           selector: {
             instanceId: config?.instance,
             repoGuid: repo.guid,
-            planId: "_system_", // 运行命令不关联任何计划
+            planId: "_system_", // run commands are not associated with a plan
           },
         })}
         filter={(op) => op.op.case === "operationRunCommand"}

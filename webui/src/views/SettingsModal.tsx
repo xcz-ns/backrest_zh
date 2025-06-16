@@ -74,7 +74,9 @@ export const SettingsModal = () => {
       newConfig.instance = formData.instance;
 
       if (!newConfig.auth?.users && !newConfig.auth?.disabled) {
-        throw new Error("必须至少配置一个用户，或禁用身份验证");
+        throw new Error(
+          "必须至少配置一个用户或禁用身份验证"
+        );
       }
 
       setConfig(await backrestService.setConfig(newConfig));
@@ -118,33 +120,35 @@ export const SettingsModal = () => {
         >
           {users.length > 0 || config.auth?.disabled ? null : (
             <>
-              <strong>Backrest 初始设置！</strong>
+              <strong>Backrest初始设置！</strong>
               <p>
-                Backrest 检测到您尚未配置任何用户，请至少添加一个用户以保护 Web 界面。
+                检测到您尚未配置任何用户，请至少添加一个用户以保护Web界面安全。
               </p>
               <p>
-                后续您可以随时添加更多用户。如果忘记密码，可通过编辑配置文件重置用户（通常位于 $HOME/.backrest/config.json）。
+                您可以在后续添加更多用户，如果忘记密码，可以通过编辑配置文件（通常位于$HOME/.backrest/config.json）重置用户
               </p>
             </>
           )}
-          <Tooltip title="实例名称将用于标识这个 Backrest 安装。请谨慎选择，因为该值一旦设定无法更改。">
+          <Tooltip title="实例名称将用于标识此backrest安装。请谨慎选择，因为该值一旦设置无法更改。">
             <Form.Item
               hasFeedback
               name="instance"
-              label="实例 ID"
+              label="实例ID"
               required
               initialValue={config.instance || ""}
               rules={[
-                { required: true, message: "实例 ID 是必填项" },
+                { required: true, message: "必须填写实例ID" },
                 {
                   pattern: namePattern,
                   message:
-                    "实例 ID 必须为字母数字组合，允许使用 '_-.' 作为分隔符",
+                    "实例ID必须为字母数字，允许使用'_-.'作为分隔符",
                 },
               ]}
             >
               <Input
-                placeholder="此实例的唯一 ID（例如 my-backrest-server）"
+                placeholder={
+                  "此实例的唯一标识符（例如 my-backrest-server）"
+                }
                 disabled={!!config.instance}
               />
             </Form.Item>
@@ -157,7 +161,7 @@ export const SettingsModal = () => {
           >
             <Checkbox />
           </Form.Item>
-          <Form.Item label="用户" required={true}>
+          <Form.Item label="用户管理" required={true}>
             <Form.List
               name={["auth", "users"]}
               initialValue={
@@ -175,11 +179,11 @@ export const SettingsModal = () => {
                           <Form.Item
                             name={[field.name, "name"]}
                             rules={[
-                              { required: true, message: "用户名是必填项" },
+                              { required: true, message: "必须填写用户名" },
                               {
                                 pattern: namePattern,
                                 message:
-                                  "用户名必须为字母数字组合，允许使用横线或下划线作为分隔符",
+                                  "用户名必须为字母数字，允许使用短横线或下划线作为分隔符",
                               },
                             ]}
                           >
@@ -192,7 +196,7 @@ export const SettingsModal = () => {
                             rules={[
                               {
                                 required: true,
-                                message: "密码是必填项",
+                                message: "必须填写密码",
                               },
                             ]}
                           >
@@ -244,7 +248,7 @@ export const SettingsModal = () => {
                 items={[
                   {
                     key: "1",
-                    label: "配置 JSON 格式",
+                    label: "配置的JSON格式",
                     children: (
                       <Typography>
                         <pre>
