@@ -1,7 +1,4 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Build Snapshot Release
+name: 快照版本构建
 
 on:
   push:
@@ -21,47 +18,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        name: 检出代码仓库
 
-      - name: Set up QEMU
+      - name: 配置 QEMU 环境
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Go
+      - name: 配置 Go 环境
         uses: actions/setup-go@v4
         with:
           go-version: "1.24"
 
-      - name: Setup NodeJS
+      - name: 配置 Node.js 环境
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Setup pnpm
+      - name: 配置 pnpm 包管理器
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Build
+      - name: 执行构建任务
         uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
           version: latest
           args: release --snapshot --clean
 
-      - name: Upload Artifacts
+      - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: backrest-snapshot-builds
+          name: backrest 快照构建产物
           path: |
             dist/*.tar.gz
             dist/*.zip
 
-      - name: Generate Installers
+      - name: 生成安装程序文件
         run: |
           mkdir -p dist-installers
           ./scripts/generate-installers.sh ./dist-installers
 
-      - name: Upload Installers
+      - name: 上传安装程序文件
         uses: actions/upload-artifact@v4
         with:
-          name: backrest-snapshot-installers
+          name: backrest 快照安装程序
           path: dist-installers/*.exe
