@@ -1,7 +1,7 @@
 # 本工作流用于构建 Golang 项目（快照版本）
 # 详情参考：https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Backrest 快照构建
+name: Backrest 测试版本构建
 
 on:
   push:

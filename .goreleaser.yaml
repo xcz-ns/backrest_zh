@@ -54,7 +54,6 @@ archives:
       - uninstall.sh
       - LICENSE
       - README.md
-      - CHANGELOG.md
     allow_different_binary_count: true
 
 dockers:
