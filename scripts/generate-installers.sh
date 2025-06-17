@@ -4,7 +4,7 @@ outdir=$(realpath $1) # output directory for the installer binaries
 srcdir=$(realpath $(dirname $0)/..) # source directory
 
 # for each supported windows architecture
-for arch in x86_64 arm64; do
+for arch in x86_64; do
   cd $(mktemp -d)
   unzip $srcdir/dist/backrest_Windows_${arch}.zip
 

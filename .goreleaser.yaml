@@ -16,14 +16,11 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - darwin
       - windows
-      - freebsd
     goarch:
       - amd64
-      - arm64
-    ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+
   - id: linux
     main: ./cmd/backrest
     env:
@@ -32,22 +29,19 @@ builds:
       - linux
     goarch:
       - amd64
-      - arm64
-      - arm
-    ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    ldflags: "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}"
+
   - id: backrestmon
     main: ./cmd/backrestmon
     binary: backrest-windows-tray
     env:
       - CGO_ENABLED=1
       - GO111MODULE=on
-    ldflags: -H=windowsgui
+    ldflags: "-H=windowsgui"
     goos:
       - windows
     goarch:
       - amd64
-      - arm64
 
 archives:
   - format: tar.gz
