@@ -1,56 +1,53 @@
-# 本工作流用于构建 Golang 项目（快照版本）
-# 详情参考：https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Backrest 测试版本构建
+name: Build Snapshot Release
 
 on:
   push:
-    branches: ["main"]  # 推送到 main 分支时触发
-    paths-ignore:
-      - "docs/**"  # 忽略文档变更
-      - "*.md"     # 忽略 Markdown 文件
-  pull_request:
-    branches: ["main"]  # PR 合并到 main 分支时触发
+    branches: ["main"]
     paths-ignore:
       - "docs/**"
       - "*.md"
-  workflow_dispatch:  # 支持手动触发
+  pull_request:
+    branches: ["main"]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  workflow_dispatch:
 
 jobs:
   build:
-    name: 快照构建任务
     runs-on: ubuntu-latest
-
     steps:
-      - name: 检出代码（Checkout）
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 设置 QEMU（用于多架构支持）
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: 设置 Go 开发环境
+      - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: "1.24"
 
-      - name: 设置 Node.js 环境
+      - name: Setup NodeJS
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: 设置 pnpm 包管理器
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: 构建快照版本（GoReleaser）
+      - name: Build
         uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
           version: latest
           args: release --snapshot --clean
 
-      - name: 上传构建产物（Artifacts）
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: backrest-snapshot-builds
@@ -58,12 +55,12 @@ jobs:
             dist/*.tar.gz
             dist/*.zip
 
-      - name: 生成安装程序
+      - name: Generate Installers
         run: |
           mkdir -p dist-installers
           ./scripts/generate-installers.sh ./dist-installers
 
-      - name: 上传安装包（Installers）
+      - name: Upload Installers
         uses: actions/upload-artifact@v4
         with:
           name: backrest-snapshot-installers
