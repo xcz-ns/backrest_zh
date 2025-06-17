@@ -9,10 +9,9 @@
 !define MAIN_APP_EXE "backrest-windows-tray.exe"
 !define INSTALL_TYPE "SetShellVarContext current"
 !define REG_ROOT "HKCU"
-!define VERSION "1.0.0"
 !define REG_UNINSTALL_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 # Extract version from the changelog.
-#!searchparse /file "${BUILD_DIR}\CHANGELOG.md" `## [` VERSION `]`
+!searchparse /file "${BUILD_DIR}\CHANGELOG.md" `## [` VERSION `]`
 # User variables.
 Var UIPort
 Var WelcomeTitle
