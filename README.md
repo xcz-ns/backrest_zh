@@ -1,81 +1,58 @@
-<p align="center"><img src="./webui/assets/logo-black.svg" width="400px"/></p>
+## **项目介绍**
 
-<p align="center">
-  <img src="https://github.com/garethgeorge/backrest/actions/workflows/test.yml/badge.svg" />
-  <img src="https://img.shields.io/github/downloads/garethgeorge/backrest/total" />
-  <img src="https://img.shields.io/docker/pulls/garethgeorge/backrest" />
-</p>
+本项目基于 [garethgeorge/backrest](https://github.com/garethgeorge/backrest) 项目汉化。
 
----
+Backrest 是基于 [restic](https://restic.net/) 构建的可通过网页访问的备份解决方案。Backrest 提供了一个封装 restic 命令行的 WebUI，方便创建仓库、浏览快照和恢复文件。此外，Backrest 还可以在后台运行，提供自动调度快照和管理仓库健康的功能。
 
-**Overview**
+通过利用 restic 成熟、高速、可靠且安全的备份能力，Backrest 增加了一个直观易用的界面。
 
-Backrest is a web-accessible backup solution built on top of [restic](https://restic.net/). Backrest provides a WebUI which wraps the restic CLI and makes it easy to create repos, browse snapshots, and restore files. Additionally, Backrest can run in the background and take an opinionated approach to scheduling snapshots and orchestrating repo health operations.
+Backrest 使用 Go 语言开发，作为单一的轻量级二进制程序发布，仅依赖 restic。它能够安全地创建新仓库或管理现有仓库。存储配置完成后，WebUI 处理大多数操作，同时也支持直接使用强大的 [restic CLI](https://restic.readthedocs.io/en/latest/manual_rest.html) 进行高级操作。
 
-By building on restic, Backrest leverages its mature, fast, reliable, and secure backup capabilities while adding an intuitive interface.
+## 主要特性
 
-Built with Go, Backrest is distributed as a standalone, lightweight binary with restic as its sole dependency. It can securely create new repositories or manage existing ones. Once storage is configured, the WebUI handles most operations, while still allowing direct access to the powerful [restic CLI](https://restic.readthedocs.io/en/latest/manual_rest.html) for advanced operations when needed.
-
-## Preview
-
-<p align="center">
-   <img src="https://f000.backblazeb2.com/file/gshare/screenshots/2024/Screenshot+from+2024-01-04+18-19-50.png" width="60%" />
-   <img src="https://f000.backblazeb2.com/file/gshare/screenshots/2024/Screenshot+from+2024-01-04+18-30-14.png" width="60%" />
-</p>
-
-## Key Features
-
-- **Web Interface**: Access locally or remotely (perfect for NAS deployments)
-- **Multi-Platform Support**: 
-  - Linux
-  - macOS
-  - Windows
-  - FreeBSD
+- **网页界面**：可本地或远程访问（适合 NAS 部署）
+- **多平台支持**：
+  - Linux 64 位
+  - Windows 64 位
   - [Docker](https://hub.docker.com/r/garethgeorge/backrest)
-- **Backup Management**:
-  - Import existing restic repositories
-  - Cron-scheduled backups and maintenance (e.g. prune, check, forget, etc)
-  - Browse and restore files from snapshots
-  - Configurable notifications (Discord, Slack, Shoutrrr, Gotify, Healthchecks)
-  - Pre/post backup command hooks to execute shell scripts
-- **Storage Options**:
-  - Compatible with rclone remotes
-  - Supports all restic storage backends (S3, B2, Azure, GCS, local, SFTP, and [all rclone remotes](https://rclone.org/))
+- **备份管理**：
+  - 导入现有 restic 仓库
+  - 定时备份和维护（如 prune、check、forget 等）
+  - 浏览快照和恢复文件
+  - 支持通知（Discord、Slack、Shoutrrr、Gotify、Healthchecks）
+  - 支持备份前后执行自定义脚本
+- **存储支持**：
+  - 兼容 rclone 远程存储
+  - 支持所有 restic 存储后端（S3、B2、Azure、GCS、本地、SFTP 等）
 
----
+------
 
-# User Guide
+# 用户指南
 
-[See the Backrest docs](https://garethgeorge.github.io/backrest/introduction/getting-started).
+[查看 Backrest 官方文档](https://garethgeorge.github.io/backrest/introduction/getting-started)。
 
-# Installation
+# 安装
 
-Backrest is packaged as a single executable. It can be run directly on Linux, macOS, and Windows. [restic](https://github.com/restic/restic) will be downloaded and installed on first run.
+Backrest 打包为单个可执行文件，可直接运行于 Linux 和 Windows 64 位系统。首次运行时会下载并安装 restic。
 
-### Quick Start Options
+### 快速启动选项
 
-1. **Pre-built Release**: Download from the [releases page](https://github.com/garethgeorge/backrest/releases)
-2. **Docker**: Use `garethgeorge/backrest:latest` ([Docker Hub](https://hub.docker.com/r/garethgeorge/backrest))
-   - Includes rclone and common Unix utilities
-   - For minimal image, use `garethgeorge/backrest:scratch`
-3. **Build from Source**: See [Building](#building) section below
+1. **预编译版本**：从 [发行页面](https://github.com/garethgeorge/backrest/releases) 下载
+2. **Docker**：使用 `garethgeorge/backrest:latest` 镜像 ([Docker Hub](https://hub.docker.com/r/garethgeorge/backrest))
+   - 包含 rclone 及常用 Unix 工具
+   - 轻量版镜像使用 `garethgeorge/backrest:scratch`
+3. **从源码编译**：见下文“编译”章节
 
-Once installed, access Backrest at `http://localhost:9898` (default port). First-time setup will prompt for username and password creation.
+安装完成后，访问 `http://localhost:9898`（默认端口）。首次启动会提示创建用户名和密码。
 
-> [!NOTE]
-> To change the default port, set the `BACKREST_PORT` environment variable (e.g., `BACKREST_PORT=0.0.0.0:9898` to listen on all interfaces)
-> 
-> Backrest will use your system's installed version of restic if it's available and compatible. If not, Backrest will download and install a suitable version in its data directory, keeping it updated. To use a specific restic binary, set the `BACKREST_RESTIC_COMMAND` environment variable to the desired path.
+> [!注意]
+>  如需修改默认端口，请设置环境变量 `BACKREST_PORT`（例如 `BACKREST_PORT=0.0.0.0:9898` 以监听所有接口）。
+>  Backrest 会使用系统中已安装且兼容的 restic，如无则自动下载并更新。你也可以通过设置 `BACKREST_RESTIC_COMMAND` 指定 restic 路径。
 
+### Docker Compose 示例配置
 
-### Running with Docker Compose
-
-Docker image: https://hub.docker.com/r/garethgeorge/backrest
-
-Example compose file:
-
-```yaml
-version: "3.8"
+```
+yaml复制编辑version: "3.8"
 services:
   backrest:
     image: garethgeorge/backrest:latest
@@ -86,8 +63,8 @@ services:
       - ./backrest/config:/config
       - ./backrest/cache:/cache
       - ./backrest/tmp:/tmp
-      - /path/to/backup/data:/userdata  # Mount local paths to backup
-      - /path/to/local/repos:/repos     # Mount local repos (optional for remote storage)
+      - /path/to/backup/data:/userdata
+      - /path/to/local/repos:/repos
     environment:
       - BACKREST_DATA=/data
       - BACKREST_CONFIG=/config/config.json
@@ -99,181 +76,95 @@ services:
     restart: unless-stopped
 ```
 
-## Running on Linux
+## Linux 平台运行
 
-### Running on Linux
+1. 下载最新发行版：[发行页面](https://github.com/garethgeorge/backrest/releases)
 
-1. **Download the Release**
-   - Get the latest release from the [releases page](https://github.com/garethgeorge/backrest/releases)
+2. 安装方式：
 
-2. **Installation Options**
+   a) 推荐使用安装脚本：
 
-   a) Using the Install Script (Recommended)
-   ```sh
-   mkdir backrest && tar -xzvf backrest_Linux_x86_64.tar.gz -C backrest
+   ```
+   sh复制编辑mkdir backrest && tar -xzvf backrest_Linux_x86_64.tar.gz -C backrest
    cd backrest && sudo ./install.sh
    ```
-   This script will:
-   - Move the Backrest binary to `/usr/local/bin`
-   - Create and start a systemd service
 
-   b) Manual Installation with systemd
-   ```sh
-   sudo mv backrest /usr/local/bin/backrest
+   脚本会：
+
+   - 将 Backrest 二进制文件移动到 `/usr/local/bin`
+   - 创建并启动 systemd 服务
+
+   b) 手动使用 systemd：
+
+   ```
+   sh复制编辑sudo mv backrest /usr/local/bin/backrest
    sudo tee /etc/systemd/system/backrest.service > /dev/null <<EOT
    [Unit]
    Description=Backrest
    After=network.target
-
+   
    [Service]
    Type=simple
    User=$(whoami)
    ExecStart=/usr/local/bin/backrest
    Environment="BACKREST_PORT=127.0.0.1:9898"
-
+   
    [Install]
    WantedBy=multi-user.target
    EOT
    sudo systemctl enable --now backrest
    ```
 
-   c) Using cron (Basic)
-   ```sh
-   sudo mv backrest /usr/local/bin/backrest
+   c) 使用 cron 简单启动：
+
+   ```
+   sh复制编辑sudo mv backrest /usr/local/bin/backrest
    (crontab -l 2>/dev/null; echo "@reboot /usr/local/bin/backrest") | crontab -
    ```
 
-3. **Verify Installation**
-   - Access Backrest at `http://localhost:9898`
-   - For the systemd service: `sudo systemctl status backrest`
+3. 访问 `http://localhost:9898` 验证运行
+    systemd 服务状态查看：`sudo systemctl status backrest`
 
-> [!NOTE]
-> Adjust the `User` in the systemd service file if needed. The install script and manual systemd instructions use your current user by default.
+> [!注意]
+>  systemd 中默认仅监听 localhost，如需监听所有接口，执行 `sudo systemctl edit backrest` 并添加：
 >
-> By default backrest listens only on localhost, you can open optionally open it up to remote connections by setting the `BACKREST_PORT` environment variable. For systemd installations, run `sudo systemctl edit backrest` and add:
 > ```
-> [Service]
+> ini复制编辑[Service]
 > Environment="BACKREST_PORT=0.0.0.0:9898"
 > ```
-> Using `0.0.0.0` allows connections from any interface.
+>
+> 保存后执行 `sudo systemctl daemon-reload` 和 `sudo systemctl restart backrest`
 
-### Arch Linux
+## Windows 平台运行
 
-> [!Note]
-> [Backrest on AUR](https://aur.archlinux.org/packages/backrest) is not maintained by the Backrest official and has made minor adjustments to the recommended services. Please refer to [here](https://aur.archlinux.org/cgit/aur.git/tree/backrest@.service?h=backrest) for details. In [backrest@.service](https://aur.archlinux.org/cgit/aur.git/tree/backrest@.service?h=backrest), use `restic` from the Arch Linux official repository by setting `BACKREST_RESTIC_COMMAND`. And for information on enable/starting/stopping services, please refer to [Systemd#Using_units](https://wiki.archlinux.org/title/Systemd#Using_units).
+1. 从 [发行页面](https://github.com/garethgeorge/backrest/releases) 下载 Windows 安装程序 `Backrest-setup-x86_64.exe`
+2. 安装程序会将 Backrest 及托盘应用安装到 `%localappdata%\Programs\Backrest\`
+3. 托盘应用会随登录启动，监控 Backrest 状态
 
-```shell
-## Install Backrest from AUR
-paru -Sy backrest  # or: yay -Sy backrest
+> [!提示]
+>  如需修改默认端口，安装前设置用户环境变量 `BACKREST_PORT`，路径：设置 > 关于 > 高级系统设置 > 环境变量，新增用户变量，值为 `127.0.0.1:端口号`（如 `127.0.0.1:8080`）
+>  安装后需更改端口时，重新运行安装程序更新快捷方式。
 
-## Enable Backrest service for current user
-sudo systemctl enable --now backrest@$USER.service
-```
+# 配置
 
-## Running on macOS
+## Unix 系统环境变量
 
-### Using Homebrew (Recommended)
+| 变量                      | 说明              | 默认值                                                      |
+| ------------------------- | ----------------- | ----------------------------------------------------------- |
+| `BACKREST_PORT`           | 绑定端口          | 127.0.0.1:9898（Docker 镜像为 0.0.0.0:9898）                |
+| `BACKREST_CONFIG`         | 配置文件路径      | `$HOME/.config/backrest/config.json`                        |
+| `BACKREST_DATA`           | 数据目录路径      | `$HOME/.local/share/backrest`                               |
+| `BACKREST_RESTIC_COMMAND` | restic 二进制路径 | Backrest 管理的 restic 版本，位于 `$XDG_DATA_HOME/backrest` |
+| `XDG_CACHE_HOME`          | 缓存目录路径      |                                                             |
 
-Backrest is available via a [Homebrew tap](https://github.com/garethgeorge/homebrew-backrest-tap):
 
-```sh
-brew tap garethgeorge/homebrew-backrest-tap
-brew install backrest
-brew services start backrest
-```
 
-This method uses [Brew Services](https://github.com/Homebrew/homebrew-services) to manage Backrest. It will launch on startup and run on port 127.0.0.1:9898 by default.
+## Windows 系统环境变量
 
-> [!NOTE]
-> You may need to grant Full Disk Access to Backrest. Go to `System Preferences > Security & Privacy > Privacy > Full Disk Access` and add `/usr/local/bin/backrest`.
-
-### Manual Installation
-
-1. Download the latest Darwin release from the [releases page](https://github.com/garethgeorge/backrest/releases).
-2. Extract and install:
-
-```sh
-mkdir backrest && tar -xzvf backrest_Darwin_arm64.tar.gz -C backrest
-cd backrest && ./install.sh
-```
-
-The install script will:
-- Move the Backrest binary to `/usr/local/bin`
-- Create a launch agent at `~/Library/LaunchAgents/com.backrest.plist`
-- Load the launch agent
-
-> [!TIP]
-> Review the script before running to ensure you're comfortable with its operations.
-
-## Running on Windows
-
-#### Windows Installer
-
-Download the Windows installer for your architecture from the [releases page](https://github.com/garethgeorge/backrest/releases). The installer, named Backrest-setup-[arch].exe, will place Backrest and a GUI tray application in `%localappdata%\Programs\Backrest\`. The tray application, set to start on login, monitors Backrest.
-
-> [!TIP]
-> To override the default port before installation, set a user environment variable named BACKREST_PORT. On Windows 10+, navigate to Settings > About > Advanced system settings > Environment Variables. Under "User variables", create a new variable with the value "127.0.0.1:port" (e.g., "127.0.0.1:8080" for port 8080). If changing post-installation, re-run the installer to update shortcuts with the new port.
-
-# Configuration
-
-## Environment Variables (Unix)
-
-| Variable                  | Description                 | Default                                                                                                             |
-| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `BACKREST_PORT`           | Port to bind to             | 127.0.0.1:9898 (or 0.0.0.0:9898 for the docker images)                                                              |
-| `BACKREST_CONFIG`         | Path to config file         | `$HOME/.config/backrest/config.json`<br>(or, if `$XDG_CONFIG_HOME` is set, `$XDG_CONFIG_HOME/backrest/config.json`) |
-| `BACKREST_DATA`           | Path to the data directory  | `$HOME/.local/share/backrest`<br>(or, if `$XDG_DATA_HOME` is set, `$XDG_DATA_HOME/backrest`)                        |
-| `BACKREST_RESTIC_COMMAND` | Path to restic binary       | Defaults to a Backrest managed version of restic at `$XDG_DATA_HOME/backrest/restic-x.x.x`                          |
-| `XDG_CACHE_HOME`          | Path to the cache directory |                                                                                                                     |
-
-## Environment Variables (Windows)
-
-| Variable                  | Description                 | Default                                                                                    |
-| ------------------------- | --------------------------- | ------------------------------------------------------------------------------------------ |
-| `BACKREST_PORT`           | Port to bind to             | 127.0.0.1:9898                                                                             |
-| `BACKREST_CONFIG`         | Path to config file         | `%appdata%\backrest`                                                                       |
-| `BACKREST_DATA`           | Path to the data directory  | `%appdata%\backrest\data`                                                                  |
-| `BACKREST_RESTIC_COMMAND` | Path to restic binary       | Defaults to a Backrest managed version of restic in `C:\Program Files\restic\restic-x.x.x` |
-| `XDG_CACHE_HOME`          | Path to the cache directory |                                                                                            |
-
-# Contributing
-
-Contributions are welcome! See the [issues](https://github.com/garethgeorge/backrest/issues) or feel free to open a new issue to discuss a project. Beyond the core codebase, contributions to [documentation](https://garethgeorge.github.io/backrest/introduction/getting-started), [cookbooks](https://garethgeorge.github.io/backrest/cookbooks/command-hook-examples), and testing are always welcome.
-
-## Build Depedencies
-
-- [Node.js](https://nodejs.org/en) for UI development
-- [Go](https://go.dev/) 1.21 or greater for server development
-- [goreleaser](https://github.com/goreleaser/goreleaser) `go install github.com/goreleaser/goreleaser@latest`
-
-**(Optional) To Edit Protobuffers**
-
-```sh
-apt install -y protobuf-compiler
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-go install github.com/bufbuild/buf/cmd/buf@v1.47.2
-go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
-npm install -g @bufbuild/protoc-gen-es
-```
-
-## Compiling
-
-```sh
-(cd webui && npm i && npm run build)
-(cd cmd/backrest && go build .)
-```
-
-## Using VSCode Dev Containers
-
-You can also use VSCode with [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to quickly get up and running with a working development and debugging environment.
-
-0. Make sure Docker and VSCode with [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension is installed
-1. Clone this repository
-2. Open this folder in VSCode
-3. When prompted, click on `Open in Container` button, or run `> Dev Containers: Rebuild and Reopen in Containers` command
-4. When container is started, go to `Run and Debug`, choose `Debug Backrest (backend+frontend)` and run it
-
-> [!NOTE]
-> Provided launch configuration has hot reload for typescript frontend.
+| 变量                      | 说明              | 默认值                                                 |
+| ------------------------- | ----------------- | ------------------------------------------------------ |
+| `BACKREST_PORT`           | 绑定端口          | 127.0.0.1:9898                                         |
+| `BACKREST_CONFIG`         | 配置文件路径      | `%appdata%\backrest`                                   |
+| `BACKREST_DATA`           | 数据目录路径      | `%appdata%\backrest\data`                              |
+| `BACKREST_RESTIC_COMMAND` | restic 二进制路径 | Backrest 管理的 restic，位于 `C:\Program Files\restic` |
+| `XDG_CACHE_HOME`          | 缓存目录路径      |                                                        |
