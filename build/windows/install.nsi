@@ -11,7 +11,7 @@
 !define REG_ROOT "HKCU"
 !define REG_UNINSTALL_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 # Extract version from the changelog.
-#!searchparse /file "${BUILD_DIR}\CHANGELOG.md" `## [` VERSION `]`
+!searchparse /file "${BUILD_DIR}\CHANGELOG.md" `## [` VERSION `]`
 # User variables.
 Var UIPort
 Var WelcomeTitle
