@@ -79,4 +79,4 @@ changelog:
 release:
   github:
     owner: xcz-ns
-    name: backrest_zh
+    name: backrest
